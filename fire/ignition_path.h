@@ -50,8 +50,12 @@ public:
 
   //other methods
 
-  int size() const;
-  bool empty() const;
+  int numSegments() const;
+  bool hasSegments() const;
+
+  bool hasPreIgnitionData() const;
+  double maxPreIgnitionTemp() const;
+
   bool fullSize() const;
   bool spreads() const;
   void sortSegments();

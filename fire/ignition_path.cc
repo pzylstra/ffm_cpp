@@ -12,7 +12,7 @@
 */
 bool IgnitionPath::spreads() const {
   int count = 0;
-  for (int i = 0; i < size(); ++i){
+  for (int i = 0; i < numSegments(); ++i){
     if (ros(i) > ffm_settings::minRateForStratumSpread) 
       ++count;
     if (count >= ffm_settings::minTimeStepsForStratumSpread) return true;
@@ -26,9 +26,9 @@ bool IgnitionPath::spreads() const {
   compute the mean, otherwise all flame lengths will be used
 */
 double IgnitionPath::meanFlameLength(const bool& ignoreZeros) const {
-  if (empty()) return 0.0;
+  if (!hasSegments()) return 0.0;
   std::vector<double> vals;
-  vals.resize(size());
+  vals.resize(numSegments());
   transform(ignitedSegments_.begin(), ignitedSegments_.end(), vals.begin(), 
             [this](const Seg& s){return species().flameLength(s.length());});
   return ffm_util::mean(vals, ignoreZeros);
@@ -41,9 +41,9 @@ double IgnitionPath::meanFlameLength(const bool& ignoreZeros) const {
   compute the standard deviation, otherwise all flame lengths will be used
 */
 double IgnitionPath::stdDevFlameLength(const bool& ignoreZeros) const {
-  if (size() < 2) return 0.0;
+  if (numSegments() < 2) return 0.0;
   std::vector<double> vals;
-  vals.resize(size());
+  vals.resize(numSegments());
   transform(ignitedSegments_.begin(), ignitedSegments_.end(), vals.begin(), 
             [this](const Seg& s){return species().flameLength(s.length());});
   return ffm_util::stdDev(vals, ignoreZeros);
@@ -58,9 +58,9 @@ double IgnitionPath::stdDevFlameLength(const bool& ignoreZeros) const {
 FlameSeries IgnitionPath::flameSeries(const double& windSpeed, 
                                       const double& slope) const {
   FlameSeries retValue(level_);
-  if (!empty()) {
-    retValue.flames().reserve(size());
-    for (int i = 0; i < size(); ++i) retValue.addFlame(flame(i, windSpeed, slope));
+  if (hasSegments()) {
+    retValue.flames().reserve(numSegments());
+    for (int i = 0; i < numSegments(); ++i) retValue.addFlame(flame(i, windSpeed, slope));
   }
   return retValue;
 }
@@ -71,7 +71,7 @@ FlameSeries IgnitionPath::flameSeries(const double& windSpeed,
   counting from idx = 0.
 */
 double IgnitionPath::ros(const int& idx) const {
-  if (idx >= size()) return 0;
+  if (idx >= numSegments()) return 0;
   if (idx == 0) {
     Seg s = ignitedSegments_.at(0);
     return (s.end().x() - s.start().x())/ffm_settings::computationTimeInterval;
@@ -85,7 +85,7 @@ double IgnitionPath::ros(const int& idx) const {
   whose rate of spread exceeds ffm_settings::minRateForStratumSpread.
 */
 double IgnitionPath::basicROS() const {
-  if (empty()) return 0;
+  if (!hasSegments()) return 0;
   double sum = 0, x = ignitedSegments_.front().start().x();
   int count = 0;
   for (const Seg& seg : ignitedSegments_) {
@@ -104,11 +104,11 @@ double IgnitionPath::basicROS() const {
   the sum of the time to ignition and the time period covered by the IgnitionPath.
 */
 double IgnitionPath::nonIndependentROS() const {
-  if (empty()) return 0;
+  if (!hasSegments()) return 0;
   // return (ignitedSegments_.back().end().x() - ignitedSegments_.front().start().x())/
-  //   (ffm_settings::computationTimeInterval*(size() + startTimeStep_));
+  //   (ffm_settings::computationTimeInterval*(numSegments() + startTimeStep_));
   return (maxX() - ignitedSegments_.front().start().x())/
-    (ffm_settings::computationTimeInterval*(size() + startTimeStep_));
+    (ffm_settings::computationTimeInterval*(numSegments() + startTimeStep_));
 }
 
 /*!\brief Time of spread
@@ -116,9 +116,9 @@ double IgnitionPath::nonIndependentROS() const {
   IgnitionPath exceeded ffm_settings::minRateForStratumSpread.
 */
  double IgnitionPath::timeOfSpread() const {
-  if (empty()) return 0;
+  if (!hasSegments()) return 0;
   int count = 0;
-  for (int i = 0; i <= size() - 1; ++i)
+  for (int i = 0; i <= numSegments() - 1; ++i)
     count += ros(i) >= ffm_settings::minRateForStratumSpread ? 1 : 0;
   return count*ffm_settings::computationTimeInterval;
 }
@@ -136,9 +136,15 @@ std::string IgnitionPath::printToString() const{
   str += "Level:                    " + levelStringMap.at(level_) + "\n";
   str += "Species:                  " + species_.name() + "\n";
   sprintf(s, "Flame duration (sec):     %.2f\n", species_.flameDuration());
-  str += std::string(s); 
-  sprintf(s,"Ignition start time step: %d", startTimeStep_); // TODO - fix if no ignition
   str += std::string(s);
+
+  if (hasSegments()) {
+    sprintf(s,"Ignition start time step: %d", startTimeStep_); 
+    str += std::string(s);
+  }
+  else {
+    str += "Ignition start time step: NA";
+  }
 
   bool hasPreHeatingData = false;
   bool hasIncidentData = false;
@@ -181,16 +187,16 @@ std::string IgnitionPath::printToString() const{
     }
   }
 
-  str += "\n\nIgnited segments:\n";
-  if (!ignitedSegments_.empty()){
+  if (hasSegments()){
+    str += "\n\nIgnited segments:\n";
     str += "Time\tStartX\tStartY\tEndX\tEndY\tSegLen\tFlameLen\n";
-  }
 
-  for (int i = 0; i < ignitedSegments_.size(); i++) {
-    Seg seg = ignitedSegments_.at(i);
-    sprintf(s, "%d\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n", 
-            i+1, seg.start().x(), seg.start().y(), seg.end().x(), seg.end().y(), seg.length(), species_.flameLength(seg.length()) );
-    str += std::string(s);
+    for (int i = 0; i < numSegments(); i++) {
+      Seg seg = ignitedSegments_.at(i);
+      sprintf(s, "%d\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n", 
+          i+1, seg.start().x(), seg.start().y(), seg.end().x(), seg.end().y(), seg.length(), species_.flameLength(seg.length()) );
+      str += std::string(s);
+    }
   }
 
   return str;

@@ -183,7 +183,7 @@ Results Location::results() const {
             if (ip.type() != IgnitionPath::STRATUM_PATH || ip.level() != strat.level())
               continue;
             if (ip.fullSize())
-              specWeightedSum += 0.5*(ip.ros(ip.size() - 1) + ip.ros(ip.size() - 2))*ip.species().composition();
+              specWeightedSum += 0.5*(ip.ros(ip.numSegments() - 1) + ip.ros(ip.numSegments() - 2))*ip.species().composition();
           }
           if (specWeightedSum >= ffm_settings::minRateForStratumSpread)
             independent = true;
@@ -199,7 +199,7 @@ Results Location::results() const {
               continue;
             if (ip.spreads()){
               distance += ip.maxHorizontalRun()*ip.species().composition();
-              time += (ip.startTimeStep() + ip.size())*ffm_settings::computationTimeInterval*
+              time += (ip.startTimeStep() + ip.numSegments())*ffm_settings::computationTimeInterval*
                 ip.species().composition();
             }
           }
@@ -572,45 +572,66 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
                                                  stratumWindSpeed, 
                                                  iPt);
 
-        //check to see if this ignition scenario has a longer flame length than any of the previous ones. 
-        //and replace stored IgnitionPath if necessary. Note we compare segment lengths
+        if (iPath.hasSegments()) {  
+          // ignition occurred
 
-        if (!iPath.empty() && iPath.maxSegmentLength() > speciesIgnitionPath.maxSegmentLength())
-          speciesIgnitionPath = iPath;
+          if (speciesIgnitionPath.hasSegments()) {
+            // there was a prior path with ignition...
+            // check to see if this ignition scenario has a longer flame length than any of the previous ones. 
+            // and replace stored IgnitionPath if necessary. Note we compare segment lengths
+            if (iPath.maxSegmentLength() > speciesIgnitionPath.maxSegmentLength()) speciesIgnitionPath = iPath;
+
+          } else { 
+            // no prior path with ignited segments so save this one
+            speciesIgnitionPath = iPath;
+          }
+
+        } else { 
+          // ignition did not occur...
+          // if the prior path also didn't have ignition, keep the one with the max temperature 
+          if (!speciesIgnitionPath.hasSegments() && iPath.maxPreIgnitionTemp() > speciesIgnitionPath.maxPreIgnitionTemp()) {
+            speciesIgnitionPath = iPath;
+          }
+        }
+
       }//end of loop over ignition scenarios
       
       //add the plant ignition path to ignitionRun
-      if (!speciesIgnitionPath.empty()){
+      if (speciesIgnitionPath.hasSegments() || speciesIgnitionPath.hasPreIgnitionData()) {
         ignitionRun.addPath(speciesIgnitionPath);
-        //add component of species weighted ignition time 
-        speciesWeightedIgnitionTime += (speciesIgnitionPath.timeToIgnition() + 
-                                        speciesIgnitionPath.timeIgnitionToMaxFlame()) * comp;
-        //order the vector of ignited segments according to flamelength
-        speciesIgnitionPath.sortSegments();
+        
+        if (speciesIgnitionPath.hasSegments()) {
+          //add component of species weighted ignition time 
+          speciesWeightedIgnitionTime += (speciesIgnitionPath.timeToIgnition() + 
+              speciesIgnitionPath.timeIgnitionToMaxFlame()) * comp;
+          //order the vector of ignited segments according to flamelength
+          speciesIgnitionPath.sortSegments();
 
-        //loop over segments and add species-weighted flame information
-        unsigned i = 0;
-        for (const Seg& sg : speciesIgnitionPath.ignitedSegments()){
-          if (ffm_numerics::leq(sg.length(), 0))
-            break; //because the segments are sorted max to min
-          double tmpFlameLength = spec.flameLength(sg.length());
-          //if flame from any segment burns out past the edge of the plant then set connection to true
-          if (!connection && 
-              sg.start().x() + 
-              tmpFlameLength*cos(windEffectFlameAngle(tmpFlameLength, stratumWindSpeed, slope()) > 0.5*spec.width())
-              )
-            connection = true;
-          //add (species weighted) flame info to vector of flame lengths
-          speciesWeightedFlameLengths.at(i) += comp*tmpFlameLength;
-          speciesWeightedFlameDepths.at(i) += comp*sg.length();
-          speciesWeightedFlameOrigins.at(i) += comp*sg.start();
-          speciesAndFlameWeightedFlameTemps.at(i) += comp*tmpFlameLength *
-            (spec.isGrass() && strat.level() == Stratum::NEAR_SURFACE ? 
-             ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
-          ++i;
+          //loop over segments and add species-weighted flame information
+          unsigned i = 0;
+          for (const Seg& sg : speciesIgnitionPath.ignitedSegments()){
+            if (ffm_numerics::leq(sg.length(), 0))
+              break; //because the segments are sorted max to min
+            double tmpFlameLength = spec.flameLength(sg.length());
+            //if flame from any segment burns out past the edge of the plant then set connection to true
+            if (!connection && 
+                sg.start().x() + 
+                tmpFlameLength*cos(windEffectFlameAngle(tmpFlameLength, stratumWindSpeed, slope()) > 0.5*spec.width())
+               )
+              connection = true;
+            //add (species weighted) flame info to vector of flame lengths
+            speciesWeightedFlameLengths.at(i) += comp*tmpFlameLength;
+            speciesWeightedFlameDepths.at(i) += comp*sg.length();
+            speciesWeightedFlameOrigins.at(i) += comp*sg.start();
+            speciesAndFlameWeightedFlameTemps.at(i) += comp*tmpFlameLength *
+              (spec.isGrass() && strat.level() == Stratum::NEAR_SURFACE ? 
+               ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
+            ++i;
+          }
+
+          //add the composition weighted origin from the largest (first after sorting) flame length
+          speciesWeightedFlameOrigin += comp*speciesIgnitionPath.ignitedSegments().front().start();
         }
-        //add the composition weighted origin from the largest (first after sorting) flame length
-        speciesWeightedFlameOrigin += comp*speciesIgnitionPath.ignitedSegments().front().start();
       }
 
     } //end of first loop over species - plant ignition
@@ -747,7 +768,7 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
         }
 
 
-        if (!speciesIgnitionPath.empty()) {
+        if (speciesIgnitionPath.hasSegments()) {
           ignitionRun.addPath(speciesIgnitionPath);
 
           //add component of species weighted ignition time 
@@ -996,8 +1017,8 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
     //for plant flame, and only if required, we modify wind speed by 
     //reducing it by speed of flame progression
     double modifiedWindSpeed = windSpeed;
-    if (!plantFlameRun && !iPath.empty()) {
-      int sz = iPath.size();
+    if (!plantFlameRun && iPath.hasSegments()) {
+      int sz = iPath.numSegments();
       if (sz == 1)
         modifiedWindSpeed = windSpeed - 
           std::max(0.0,
@@ -1134,7 +1155,7 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
           }
         }
 
-	if (iPt == initialPt && step == 1) {
+        if (iPt == initialPt && step == 1) {
           iPath.addPreIgnitionData( PreIgnitionData::incident(dryingFactor, dryingTemp) );
         }
 
@@ -1152,7 +1173,7 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
         //if we get here ignition has occurred, so reset end pt and continue
 
         if (iPt == initialPt && step == 1) {
-	  double finalDryingFactor = std::max(0.0, 1.0 - ffm_settings::computationTimeInterval / idt); 
+          double finalDryingFactor = std::max(0.0, 1.0 - ffm_settings::computationTimeInterval / idt); 
           iPath.addPreIgnitionData( PreIgnitionData::ignition(finalDryingFactor, maxTemp) );
         }
 
@@ -1167,7 +1188,7 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
     }
     
     if (ignition){
-      if (iPath.empty()) {
+      if (!iPath.hasSegments()) {
         iPath.addSegment(Seg(iPt,ePt));
         plantFlames.push_back(iPath.flame(modifiedWindSpeed, slope()));
       } else {
@@ -1183,8 +1204,8 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
           //         /ffm_settings::computationTimeInterval);
           fd = ceil(spec.flameDuration()
                     /ffm_settings::computationTimeInterval);
-        Pt segStart = iPath.size() < fd ? 
-          iPath.ignitedSegments().front().start() : iPath.ignitedSegments().at(iPath.size()-fd).end();
+        Pt segStart = iPath.numSegments() < fd ? 
+          iPath.ignitedSegments().front().start() : iPath.ignitedSegments().at(iPath.numSegments()-fd).end();
         //If the potential incident flame and plant flame path lengths are both zero and 
         //the start point of the new segment is equal to its end point then break from the loop and
         //therefore end the ignition path computation.

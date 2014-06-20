@@ -41,13 +41,13 @@ class PreIgnitionData {
     }
 
     // accessors
-    Type type() { return type_; }
+    Type type() const { return type_; }
     
-    double dryingFactor() { return dryingFactor_; }
+    double dryingFactor() const { return dryingFactor_; }
     
-    double temperature() { return temperature_; }
+    double temperature() const { return temperature_; }
     
-    double duration() {
+    double duration() const {
       if (type_ != Type::PREHEATING) 
         throw std::runtime_error("duration only defined for preheating data");
 

@@ -3,6 +3,7 @@
 #define IGNITION_PATH_INLINE_H
 
 #include <algorithm>
+#include <float.h>
 
 #include "flame.h"
 
@@ -28,9 +29,9 @@ inline  IgnitionPath::IgnitionPath() :
   \param startTimeStep The time step in which ignition of the first segment occurs.
 */
 inline IgnitionPath::IgnitionPath(const PathType& pathType,
-				  const Stratum::LevelType& lev, 
-				  const Species& species, 
-				  const int& startTimeStep) : 
+                                  const Stratum::LevelType& lev, 
+                                  const Species& species, 
+                                  const int& startTimeStep) : 
   type_(pathType),
   level_(lev),  
   species_(species),
@@ -40,7 +41,7 @@ inline IgnitionPath::IgnitionPath(const PathType& pathType,
   {
     ignitedSegments_.reserve(ffm_settings::maxTimeSteps);
   }
-		    
+                    
 //accessors 
 
 /*!\brief Path type
@@ -103,14 +104,31 @@ inline void IgnitionPath::addPreIgnitionData(const PreIgnitionData& data) {preIg
 /*!\brief Number of segments
   \return The number of segments in the IgnitionPath object.
 */
-inline int IgnitionPath::size() const {
+inline int IgnitionPath::numSegments() const {
   return ignitedSegments_.size();
 }
-/*!\brief Test for empty IgnitionPath
-  \return true if and only if the IgntionPath has no segments.
+/*!\brief Test for ignited segments
+  \return true if there is at least one ignited segment
 */
-inline bool IgnitionPath::empty() const {
-  return ignitedSegments_.empty();
+inline bool IgnitionPath::hasSegments() const {
+  return !ignitedSegments_.empty();
+}
+
+/*!\brief Test for pre-ignition data
+  \return true if there is pre-ignition data
+*/
+inline bool IgnitionPath::hasPreIgnitionData() const {
+  return !preIgnitionData_.empty();
+}
+
+inline double IgnitionPath::maxPreIgnitionTemp() const {
+  double t = -DBL_MAX;
+
+  for (const PreIgnitionData& pid : preIgnitionData_) {
+    t = std::max(t, pid.temperature());
+  }
+
+  return t;
 }
 
 /*!\brief Test for IgnitionPath of maximum size
@@ -136,10 +154,10 @@ inline void IgnitionPath::sortSegments() {
   \return The length of the longest segment.
 */
 inline double IgnitionPath::maxSegmentLength() const {
-  if (ignitedSegments_.empty()) return 0;
+  if (!hasSegments()) return 0;
   auto i = max_element(ignitedSegments_.begin(), 
-		       ignitedSegments_.end(), 
-		       [](Seg s1, Seg s2){return s1.length() < s2.length();});
+                       ignitedSegments_.end(), 
+                       [](Seg s1, Seg s2){return s1.length() < s2.length();});
   return (*i).length();
 }
 
@@ -148,10 +166,10 @@ inline double IgnitionPath::maxSegmentLength() const {
   is equal to the maximum segment length.
 */
 inline int IgnitionPath::indexOfMaxSegment() const {
-  if (ignitedSegments_.empty()) return -1;
+  if (!hasSegments()) return -1;
   auto i = max_element(ignitedSegments_.begin(), 
-		       ignitedSegments_.end(), 
-		       [](Seg s1, Seg s2){return s1.length() < s2.length();});
+                       ignitedSegments_.end(), 
+                       [](Seg s1, Seg s2){return s1.length() < s2.length();});
   return static_cast<int>(std::distance(ignitedSegments_.begin(),i));
 }
 
@@ -168,10 +186,10 @@ inline Pt IgnitionPath::originOfMaxSegment() const {
   \return The maximum height above the surface achieved by any part of any segment.
 */
 inline double IgnitionPath::maxHeightBurnt(const double& slope) const {
-  if (ignitedSegments_.empty()) return 0;
+  if (!hasSegments()) return 0;
   auto i = max_element(ignitedSegments_.begin(), ignitedSegments_.end(), 
-		       [slope](Seg s1, Seg s2){return s1.end().y() - s1.end().x()*tan(slope)  < 
-					       s2.end().y() - s2.end().x()*tan(slope);});
+                       [slope](Seg s1, Seg s2){return s1.end().y() - s1.end().x()*tan(slope)  < 
+                                               s2.end().y() - s2.end().x()*tan(slope);});
   return (*i).end().y() - (*i).end().x()*tan(slope);
 }
 
@@ -179,10 +197,10 @@ inline double IgnitionPath::maxHeightBurnt(const double& slope) const {
   \return The maximum x-coordinate of any part of any ignited segment.
 */
 inline double IgnitionPath::maxX() const {
-  if (ignitedSegments_.empty()) return 0;
+  if (!hasSegments()) return 0;
   auto i = max_element(ignitedSegments_.begin(), ignitedSegments_.end(), 
-		       [](Seg s1, Seg s2){return std::max(s1.start().x(),s1.end().x()) < 
-					  std::max(s2.start().x(), s2.end().x());});
+                       [](Seg s1, Seg s2){return std::max(s1.start().x(),s1.end().x()) < 
+                                          std::max(s2.start().x(), s2.end().x());});
   return std::max((*i).start().x(), (*i).end().x());
 }
 
@@ -193,7 +211,7 @@ inline double IgnitionPath::maxX() const {
 inline double IgnitionPath::maxHorizontalRun() const {
   //only intended for use with stratum runs
   if(type_ != STRATUM_PATH) return 0;
-  if (ignitedSegments_.empty()) return 0;
+  if (!hasSegments()) return 0;
   return maxX() - species().crown().left();
 }
 
@@ -209,11 +227,11 @@ inline double IgnitionPath::timeToIgnition() const {
   when the maximum segment length is first achieved.
 */
 inline int IgnitionPath::timeStepsIgnitionToMaxFlame() const {
-  if (empty()) return 0;
+  if (!hasSegments()) return 0;
   auto cmp = [](Seg s1, Seg s2){return s1.length() < s2.length();};
   return static_cast<int> (std::distance(ignitedSegments_.begin(),
-					     std::max_element(ignitedSegments_.begin(), 
-							      ignitedSegments_.end(), cmp)));
+                                             std::max_element(ignitedSegments_.begin(), 
+                                                              ignitedSegments_.end(), cmp)));
 }
 
 
@@ -229,7 +247,7 @@ inline double IgnitionPath::timeIgnitionToMaxFlame() const {
   \return The maximum flame length produced by any ignited segment.
 */
 inline double IgnitionPath::maxFlameLength() const {
-  if (ignitedSegments_.empty()) return 0;
+  if (!hasSegments()) return 0;
   return species().flameLength(maxSegmentLength());
 }
 
@@ -239,7 +257,7 @@ inline double IgnitionPath::maxFlameLength() const {
 */
 inline double IgnitionPath::flameLength() const {
   //returns the flame length from the most recent ignited segment of the ignition path
-  if (empty()) return 0;
+  if (!hasSegments()) return 0;
   return species_.flameLength(ignitedLength());
 }
   
@@ -256,7 +274,7 @@ inline double IgnitionPath::flameLength(const int& i) const {
 */
 inline double IgnitionPath::ignitedLength() const {
   //returns the ignited length from the most recent ignited segment of the ignition path
-  if (empty()) return 0;
+  if (!hasSegments()) return 0;
   return ignitedSegments_.back().length();
 }
  
@@ -272,7 +290,7 @@ inline double IgnitionPath::ignitedLength(const int& i) const {
   \return Origin of the last segment.
 */
 inline Pt IgnitionPath::origin() const {
-  if (empty()) return Pt();
+  if (!hasSegments()) return Pt();
   return ignitedSegments_.back().start();
 }
 
@@ -281,7 +299,7 @@ inline Pt IgnitionPath::origin() const {
   \return Origin of the i-th segment conting from i = 0.
 */
 inline Pt IgnitionPath::origin(const int& i) const {
-  if (empty()) return Pt();
+  if (!hasSegments()) return Pt();
   return ignitedSegments_.at(i).start();
 }
 
@@ -292,13 +310,13 @@ inline Pt IgnitionPath::origin(const int& i) const {
   \return The Flame generated by the last segment.
 */
 inline Flame IgnitionPath::flame(const double& windSpeed, const double& slope) const {
-  if (empty()) return Flame();
+  if (!hasSegments()) return Flame();
   return Flame(flameLength(),
-	       windEffectFlameAngle(flameLength(), windSpeed, slope), 
-	       origin(), 
-	       ignitedLength(),
-	       level_ == Stratum::NEAR_SURFACE && species_.isGrass() ? 
-	       ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
+               windEffectFlameAngle(flameLength(), windSpeed, slope), 
+               origin(), 
+               ignitedLength(),
+               level_ == Stratum::NEAR_SURFACE && species_.isGrass() ? 
+               ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
 }
 
 
@@ -309,13 +327,13 @@ inline Flame IgnitionPath::flame(const double& windSpeed, const double& slope) c
   \return The Flame generated by the idx-th segment counting from idx = 0.
 */
 inline Flame IgnitionPath::flame(const int& idx, const double& windSpeed, const double& slope) const {
-  if (empty()) return Flame();
+  if (!hasSegments()) return Flame();
   return Flame(flameLength(idx),
-	       windEffectFlameAngle(flameLength(idx), windSpeed, slope), 
-	       origin(idx), 
-	       ignitedLength(idx),
-	       level_ == Stratum::NEAR_SURFACE && species_.isGrass() ? 
-	       ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
+               windEffectFlameAngle(flameLength(idx), windSpeed, slope), 
+               origin(idx), 
+               ignitedLength(idx),
+               level_ == Stratum::NEAR_SURFACE && species_.isGrass() ? 
+               ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
 }
 
 #endif //IGNITION_PATH_INLINE_H

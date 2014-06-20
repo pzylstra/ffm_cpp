@@ -33,10 +33,10 @@ std::vector<double>  ForestIgnitionRun::speciesWeightedFlameLengths(const Stratu
 								      const IgnitionPath::PathType& ptype) const {
   std::vector<double> flameLengths(ffm_settings::maxTimeSteps, 0);
   for (IgnitionPath ip : paths_) {
-    if (ip.level() != lev || ip.type() != ptype || ip.empty()) continue;
+    if (ip.level() != lev || ip.type() != ptype || !ip.hasSegments()) continue;
     double comp = ip.species().composition();
     ip.sortSegments();
-    for (int i = 0; i < ip.size(); ++i)
+    for (int i = 0; i < ip.numSegments(); ++i)
       flameLengths.at(i) += comp*ip.flameLength(i);
   }
   return flameLengths;
@@ -151,7 +151,7 @@ double ForestIgnitionRun::activeCrownFireROS(const Results& res) const {
 						  ip.type() == IgnitionPath::STRATUM_PATH;});
   	if (i < paths_.end())
   	  //there is a stratum path for this species
-  	  weightedFlameOrigin += (*i).origin(std::min((*i).size() - 1, nextIgnitTimeStep - 1)) * sp.composition();
+  	  weightedFlameOrigin += (*i).origin(std::min((*i).numSegments() - 1, nextIgnitTimeStep - 1)) * sp.composition();
   	else {
   	  //there was no stratum path for this species, we'll use the last origin from the plant path
   	  i = find_if(paths_.begin(), paths_.end(), 
