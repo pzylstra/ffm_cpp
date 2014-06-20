@@ -70,16 +70,16 @@ double stringToDouble(const std::string& str) {
 }
 
 /*!\brief Initial parse of input file
-  \param inFileName
+  \param inPath input file path
   \return A pair consisting of the output level desired (Results::OutputLevelType) and the
   number of monte carlo iterations required
 */
-std::pair<Results::OutputLevelType, int> prelimParseInputTextFile(std::string inFileName) {
+std::pair<Results::OutputLevelType, int> prelimParseInputTextFile(std::string inPath) {
   //provides an intial parse of the input file, to find output type and the number of monte carlo
   //iterations if applicable
 
   //file parsing variables
-  std::ifstream inFile(inFileName);
+  std::ifstream inFile(inPath);
   std::string line;
   std::string firstString, secondString;
   std::vector<std::string> strVec;
@@ -125,14 +125,14 @@ std::pair<Results::OutputLevelType, int> prelimParseInputTextFile(std::string in
 
 
 /*!\brief Parse input file
-\param inFileName
+\param inPath input file path
 \param monteCarlo
 \return A location object that is constructed from the contents of inputFileName
 */
-Location parseInputTextFile(const std::string& inFileName, const bool& monteCarlo) {
+Location parseInputTextFile(const std::string& inPath, const bool& monteCarlo) {
 
   // file parsing variables
-  std::ifstream inFile(inFileName);
+  std::ifstream inFile(inPath);
   std::string line;
   std::string firstString;
   std::string secondString;

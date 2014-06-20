@@ -1,7 +1,6 @@
-#ifndef TEST_H
-#define TEST_H
 #include <limits.h>
 #include <iostream>
+#include <fstream>
 #include "pt.h"
 #include "species.h"
 #include "stratum.h"
@@ -10,44 +9,44 @@
 #include "ffm_io.h"
 #include "layer.h"
 #include "ffm_settings.h"
+#include "ffm_util.h"
 
 using namespace ffm_settings;
 using std::vector;
 using std::cout;
 using std::endl;
 
-int main() {
-  std::string inFileName = "ffm_input.txt";
+void process(std::string inPath, std::ostream &outputStream) {
 
-  std::pair<Results::OutputLevelType, int> waddaYaWant = prelimParseInputTextFile(inFileName);
+  std::pair<Results::OutputLevelType, int> waddaYaWant = prelimParseInputTextFile(inPath);
   Results::OutputLevelType outputLevel = waddaYaWant.first;
   int numIter = waddaYaWant.second;
   
   bool monteCarlo = (outputLevel == Results::MONTE_CARLO);
   
-
   if (!monteCarlo) {
-    Location loc = parseInputTextFile(inFileName, monteCarlo);
-    cout << loc.printToString() << endl;
+    Location loc = parseInputTextFile(inPath, monteCarlo);
+    outputStream << loc.printToString() << endl;
     Results res = loc.results();
-    cout << res.printToString(outputLevel) << endl;
+
+    outputStream << res.printToString(outputLevel) << endl;
   }
   else {
     int counter = 0;
     bool firstTime = true;
     while (counter < numIter) {
-      Location loc = parseInputTextFile(inFileName, monteCarlo);
+      Location loc = parseInputTextFile(inPath, monteCarlo);
       if (loc.empty()) {
 	cout << "continuing" << endl;
 	continue;
       }
       Results res = loc.results();
       if (firstTime) {
-	cout << printMonteCarloHeader(loc);
+	outputStream << printMonteCarloHeader(loc);
 	firstTime = false;
       }
-      cout << printMonteCarloInputs(loc);
-      cout << printMonteCarloResults(res) << endl;
+      outputStream << printMonteCarloInputs(loc);
+      outputStream << printMonteCarloResults(res) << endl;
       ++counter;
     }
   }
@@ -55,4 +54,26 @@ int main() {
 
 }
 
-#endif //TEST_H
+int main(int argc, char *argv[]) {
+  if (argc < 2) {
+    cout << "usage: ffm input_file [output_file]" << endl;
+    return 0;
+  }
+
+  std::string inPath = std::string(argv[1]);
+
+  // optional output path - if not provided output is sent to console
+  bool isFileOutput = false;
+  std::ostream* fp = &cout;
+  std::ofstream fout;
+  std::string outPath = argc >= 3 ? std::string(argv[2]) : "";
+  if( !outPath.empty()) {
+    fout.open(outPath); 
+    fp = &fout;
+    isFileOutput = true;
+  }
+
+  process(inPath, *fp);
+  if (!outPath.empty()) fout.close();
+}
+

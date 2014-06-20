@@ -1,55 +1,33 @@
-# Sydney Upper Montane DSF
+# Brind 23
 
 
 #near surface ##############################
 
 begin stratum
 level = near surface
-plant separation = 10, 5
+plant separation = 0.15
 
 
 begin species
-composition = 0, 199
-name =     Suspended leaves
-live leaf moisture =   80e-2
-silica free ash content =      -99
-ignition temperature =       220
-proportion dead =  1
-leaf form =  flat
-leaf thickness = 0.38e-3
-leaf width = 30e-3, 20e-3 
-leaf length =   105e-3, 11e-3 
-leaf separation =   5e-2
-stem order =  1
-clump separation =   0.1
-clump diameter =  0.1
-he =     0
-ht =     0.2, 0.2
-hc =     0
-hp =     0.2, 0.2
-w =     1
-end species
-
-begin species
-composition = 10, 20
-name =   Joycea pallida
-live leaf moisture = 80e-2, 30e-2
+composition = 100, 199
+name =   Monocot
+live leaf moisture = 100e-2, 100e-2
 silica free ash content =    -99
 ignition temperature =     260
-proportion dead =  0.53
+proportion dead =  0.5
 leaf form =  flat
-leaf thickness = 0.34e-3, 0.13e-3
-leaf width = 2.4e-3, 1e-3
+leaf thickness = 0.3e-3
+leaf width = 6e-3
 leaf length =   150e-3
-leaf separation =   0.78e-2
+leaf separation =   4e-2
 stem order =  1
 clump separation =   0
-clump diameter =  0.2
+clump diameter =  0.08
 he =     0
-ht =     0.2, 0.2
+ht =     0.05
 hc =     0
-hp =     0.2, 0.2
-w =     1
+hp =     0.1
+w =      0.08
 end species
 
 
@@ -59,74 +37,51 @@ end stratum
 
 begin stratum
 level = elevated
-plant separation = 1
+plant separation = 3.4
 
 
 begin species
 composition = 100, 199
-name =     Acacia dorothea
-live leaf moisture =   80e-2, 30e-2
-silica free ash content =      -99
-ignition temperature =       260
-proportion dead =  0
-leaf form =  flat
-leaf thickness = 0.26e-3, 0.27e-3
-leaf width = 12e-3, 15e-3
-leaf length =   60e-3, 40e-3
-leaf separation =   0.35e-2
-stem order =  4.6, 4
-clump separation =   0.2, 0.4
-clump diameter =  0.5, 0.5
-he =     0.5, 1
-ht =     1.5, 1
-hc =     0.5, 1
-hp =     1.7, 1
-w =     1, 0.5
-end species
-
-
-begin species
-composition = 100, 199
-name =     Bursaria spinosa
-live leaf moisture =   80e-2, 30e-2
-silica free ash content =      -99
-ignition temperature =  260     
-proportion dead =  10, 20
-leaf form =  flat
-leaf thickness = 0.24e-3, 0.06e-3
-leaf width = 4.3e-3, 3e-3
-leaf length =   14.8e-3, 11e-3
-leaf separation =   0.25e-2
-stem order =  4.5
-clump separation =   0.2, 0.4
-clump diameter =  0.5, 0.5
-he =     0.4, 1
-ht =     1, 1
-hc =     0.4, 1
-hp =     1, 1
-w =     1, 0.5
-end species
-
-begin species
-composition = 100, 199
-name =     Cassinia longifolia
-live leaf moisture =   80e-2, 30e-2
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
 silica free ash content =      -99
 ignition temperature =       220
 proportion dead =  0
 leaf form =  flat
-leaf thickness = 0.17e-3, 0.04e-3
-leaf width = 4e-3, 3.5e-3
-leaf length =   50.2e-3, 72e-3
-leaf separation =   0.42e-2
-stem order =  5, 2
-clump separation =   0.2
-clump diameter =  0.6, 0.1
-he =     0.4, 0.4
-ht =     1.2, 0.2
-hc =     0.4, 0.2
-hp =     1.5
-w =     1.7, 0.9
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  2
+he =     0.9
+ht =     1.1
+hc =     0.3
+hp =     2
+w =      2
+end species
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  2
+he =     0.9
+ht =     1.1
+hc =     0.3
+hp =     2
+w =      2
 end species
 
 
@@ -137,139 +92,29 @@ end stratum
 
 begin stratum
 level = canopy
-plant separation = 8, 5
+plant separation = 8.9
 
 
 begin species
 composition = 100, 199
-name =     Eucalyptus sclerophylla
-live leaf moisture =   80e-2, 30e-2
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
 silica free ash content =      -99
 ignition temperature =       220
 proportion dead =  0
 leaf form =  flat
-leaf thickness = 0.38e-3, 0.49e-3
-leaf width = 30e-3, 20e-3 
-leaf length =   105e-3, 11e-3 
-leaf separation =   1.56e-2
-stem order =  5.5, 2.1
-clump separation =   1.2
-clump diameter =  2.9
-he =     7, 6
-ht =     10, 8
-hc =     7, 6
-hp =     10.5, 9
-w =     7, 6
-end species
-
-begin species
-composition = 100, 199
-name =     Eucalyptus sieberi
-live leaf moisture =   80e-2, 30e-2
-silica free ash content =      -99
-ignition temperature =       220
-proportion dead =  0
-leaf form =  flat
-leaf thickness = 0.38e-3, 0.49e-3
-leaf width = 20e-3, 16e-3
-leaf length =    120e-3, 60e-3
-leaf separation =   2.89e-2
-stem order =  5.5, 2.1
-clump separation =   1.2
-clump diameter =  2.9
-he =     25, 10
-ht =     30, 18
-hc =     22, 9
-hp =     35, 20
-w =     10, 5
-end species
-
-begin species
-composition = 100, 199
-name =     Eucalyptus sparsifolia
-live leaf moisture =   80e-2, 30e-2
-silica free ash content =      -99
-ignition temperature =       220
-proportion dead =  0
-leaf form =  flat
-leaf thickness = 0.38e-3, 0.49e-3
-leaf width = 15e-3, 10e-3
-leaf length =    100e-3, 40e-3
-leaf separation =   2.33e-2
-stem order =  5.5, 2.1
-clump separation =   1.2
-clump diameter =  2.9
-he =     6, 5
-ht =     10, 8
-hc =     5, 4
-hp =     10.5, 9
-w =       3, 2
-end species
-
-begin species
-composition = 100, 199
-name =     Eucalyptus blaxlandii
-live leaf moisture =   80e-2, 30e-2
-silica free ash content =      -99
-ignition temperature =       220
-proportion dead =  0
-leaf form =  flat
-leaf thickness = 0.38e-3, 0.49e-3
-leaf width = 30e-3, 20e-3 
-leaf length =   105e-3, 11e-3 
-leaf separation =   1.56e-2
-stem order =  5.5, 2.1
-clump separation =   1.2
-clump diameter =  2.9
-he =     10, 10
-ht =     17, 17
-hc =     10, 10
-hp =     20, 20
-w =     12, 12
-end species
-
-begin species
-composition = 100, 199
-name =     Eucalyptus dives
-live leaf moisture =   80e-2, 30e-2
-silica free ash content =      -99
-ignition temperature =       220
-proportion dead =  0
-leaf form =  flat
-leaf thickness = 0.4e-3, 0.03e-3
-leaf width = 15.8e-3, 6e-3
-leaf length =   103.6e-3, 12e-3
-leaf separation =   1.66e-2
-stem order =  5, 3
-clump separation =   1, 1.1
-clump diameter =  2.3, 2.6
-he =     6.5, 5.5
-ht =     11.4, 10.4
-hc =     6, 5
-hp =     13.5, 12
-w =     4.1, 3.6
-end species
-
-begin species
-composition = 100, 199
-name =   Eucalyptus pauciflora
-live leaf moisture = 80e-2, 30e-2
-silica free ash content =    -99
-ignition temperature =     220
-proportion dead =  0
-leaf form =  flat
-leaf thickness = 0.49e-3, 0.40e-3
-leaf width = 26.7e-3, 20e-3
-leaf length =   67.9e-3
-leaf separation =   1.06e-2
-stem order =  5
-clump separation =   1.3, 1.7
-clump diameter =  2.5, 3.3
-he =     11.1, 10
-ht =     14.6, 10
-hc =     9.7, 10
-hp =     16.8, 10
-w =      5.1, 1.8
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  5.7
+he =     5.2
+ht =     7.9
+hc =     5.2
+hp =     10
+w =      5.7
 end species
 
 
@@ -279,7 +124,7 @@ end stratum
 # metres and km/h respectively
 
 fireline length = 100                         
-incident wind speed =   40, 10 #km/h
+incident wind speed =  -13  #km/h
 
 # overlapping can be specified as: overlapped, not overlapped, automatic
 # the overlapping specifications can be omitted in which case 
@@ -293,14 +138,14 @@ overlapping = midstorey, canopy, automatic
 
 # surface variables
 
-slope =           0, 20                                 #deg
-surface dead fuel moisture content = 0.086
-fuel load tonnes per hectare = 16
+slope =          0                                    #deg
+surface dead fuel moisture content = 0.036
+fuel load tonnes per hectare = 15.4
 mean fuel diameter = 5e-3
-mean fineness leaves = 0.4e-3
+mean fineness leaves = 0.49e-3
 
 # weather variables
-air temperature =   19.3    # degrees C 
+air temperature =   32.3    # degrees C 
 
 
 # type of output
@@ -308,5 +153,5 @@ air temperature =   19.3    # degrees C
 # can also use 1, 2, 3, 4
 
 output level = 3
-monte carlo iterations = 100
+monte carlo iterations = 1000
 

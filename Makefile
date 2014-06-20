@@ -75,4 +75,5 @@ test.o : $(BASEDIR)/forest/test.cc $(ALL_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(BASEDIR)/forest/test.cc
 
 clean :
-	rm *.o test
+	rm *.o ffm.exe
+

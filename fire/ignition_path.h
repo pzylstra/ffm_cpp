@@ -4,6 +4,7 @@
 #include "seg.h"
 #include "stratum.h"
 #include "flame_series.h"
+#include "pre_ignition_data.h"
 
 class Species;
 class Flame;
@@ -40,10 +41,12 @@ public:
   int startTimeStep() const;
   std::vector<Seg> ignitedSegments() const;
   Seg ignitedSegment(const int& i) const;
+  std::vector<PreIgnitionData> preIgnitionData() const;
   
   //mutators
   void startTimeStep(const int& startTimeStep);
   void addSegment(const Seg& seg);
+  void addPreIgnitionData(const PreIgnitionData& data);
 
   //other methods
 
@@ -86,7 +89,7 @@ private:
   Species species_;
   int startTimeStep_;
   std::vector<Seg> ignitedSegments_;
-
+  std::vector<PreIgnitionData> preIgnitionData_;
 };
 
 //map for names of path types (used for printing)

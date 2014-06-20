@@ -43,8 +43,8 @@ Results Location::results() const {
   //****************** surface results **************************************
 
   double sws = forest_.windProfile(incidentWindSpeed_, 
-				   forest_.heightForSurfaceWind(), 
-				   !runTwoExists);
+                                   forest_.heightForSurfaceWind(), 
+                                   !runTwoExists);
   overallResults.surfaceROS(forest_.surface().ros(sws));
   double sfl = forest_.surface().flameLength(sws);
   overallResults.surfaceFlameLength(sfl);
@@ -68,41 +68,41 @@ Results Location::results() const {
     if (strat.level() != Stratum::CANOPY) {
 
       double plantFlameLength = ffm_util::cappedMax(fir.laterallyMergedSpeciesWeightedPlantFlameLengths(strat.level(), 
-											 firelineLength_));
+                                                                                         firelineLength_));
       double stratumFlameLength = ffm_util::cappedMax(fir.speciesWeightedFlameLengths(strat.level(), 
-									    IgnitionPath::STRATUM_PATH));
+                                                                            IgnitionPath::STRATUM_PATH));
       if (plantFlameLength > stratumFlameLength){
-	flameLength = plantFlameLength;
-	flameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
+        flameLength = plantFlameLength;
+        flameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
       } else {
-	flameLength = stratumFlameLength;
-	flameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
+        flameLength = stratumFlameLength;
+        flameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
       }
     } else { //the canopy
       double plantFlameLength = ffm_util::cappedMax(fir1.laterallyMergedSpeciesWeightedPlantFlameLengths(strat.level(), 
-											  firelineLength_));
+                                                                                          firelineLength_));
       double stratumFlameLength = ffm_util::cappedMax(fir1.speciesWeightedFlameLengths(strat.level(), 
-									     IgnitionPath::STRATUM_PATH));
+                                                                             IgnitionPath::STRATUM_PATH));
       if (plantFlameLength > stratumFlameLength){
-	flameLength = plantFlameLength;
-	flameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
+        flameLength = plantFlameLength;
+        flameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
       } else {
-	flameLength = stratumFlameLength;
-	flameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
+        flameLength = stratumFlameLength;
+        flameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
       }
       
       if (runTwoExists) {
-	plantFlameLength = ffm_util::cappedMax(fir2.laterallyMergedSpeciesWeightedPlantFlameLengths(strat.level(), 
-										     firelineLength_));
-	stratumFlameLength = ffm_util::cappedMax(fir2.speciesWeightedFlameLengths(strat.level(), 
-									IgnitionPath::STRATUM_PATH));
-	if(stratumFlameLength > flameLength)
-	  flameLength = stratumFlameLength;
-	flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
+        plantFlameLength = ffm_util::cappedMax(fir2.laterallyMergedSpeciesWeightedPlantFlameLengths(strat.level(), 
+                                                                                     firelineLength_));
+        stratumFlameLength = ffm_util::cappedMax(fir2.speciesWeightedFlameLengths(strat.level(), 
+                                                                        IgnitionPath::STRATUM_PATH));
+        if(stratumFlameLength > flameLength)
+          flameLength = stratumFlameLength;
+        flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
       }
       if (plantFlameLength > flameLength){
-	flameLength = plantFlameLength;
-	flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
+        flameLength = plantFlameLength;
+        flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
       } 
     }
     stratResults.flameLength(flameLength);
@@ -132,7 +132,7 @@ Results Location::results() const {
     //to be changed later
     
     stratResults.flameHeight(flameOrigin.y() + flameLength*sin(flameAng) - 
-			     (flameOrigin.x() + flameLength*cos(flameAng))*tan(slope()));
+                             (flameOrigin.x() + flameLength*cos(flameAng))*tan(slope()));
     
     //*********** stratum rate of spread ************************
     
@@ -140,90 +140,90 @@ Results Location::results() const {
 
     if (strat.level() == Stratum::NEAR_SURFACE) {
       for (const Species& spec : strat.allSpecies()) {
-	double specROS = 0;
-	//find the plant path if it exists
-	auto i = find_if(fir.beginPaths(), fir.endPaths(), 
-			 [spec,strat](IgnitionPath ip){return ip.species().sameSpecies(spec) &&
-						       ip.level() == strat.level() &&
-						       ip.type() == IgnitionPath::PLANT_PATH;});
-	if (i < fir.endPaths()) {
-	  //weighted sum of plant and surface ros
-	  double tmp = std::min(1.0,(*i).species().width()/strat.modelPlantSep());
-	  specROS = tmp * (*i).basicROS() + (1 - tmp)*overallResults.surfaceROS();
-	}
-	if (fir.spreadsInStratum(strat.level())) {
-	  //find the stratum path if it exists
-	  i = find_if(fir.beginPaths(), fir.endPaths(), 
-		      [strat,spec](IgnitionPath ip){return ip.species().sameSpecies(spec) &&
-						    ip.level() == strat.level() &&
-						    ip.type() == IgnitionPath::STRATUM_PATH;});
-	  if (i < fir.endPaths())
-	    //species ROS is the max of those of the plant and stratum
-	    specROS = std::max(specROS, (*i).basicROS());
-	}
-	
-	//species-weighted sum
-	stratROS += specROS * spec.composition();
+        double specROS = 0;
+        //find the plant path if it exists
+        auto i = find_if(fir.beginPaths(), fir.endPaths(), 
+                         [spec,strat](IgnitionPath ip){return ip.species().sameSpecies(spec) &&
+                                                       ip.level() == strat.level() &&
+                                                       ip.type() == IgnitionPath::PLANT_PATH;});
+        if (i < fir.endPaths()) {
+          //weighted sum of plant and surface ros
+          double tmp = std::min(1.0,(*i).species().width()/strat.modelPlantSep());
+          specROS = tmp * (*i).basicROS() + (1 - tmp)*overallResults.surfaceROS();
+        }
+        if (fir.spreadsInStratum(strat.level())) {
+          //find the stratum path if it exists
+          i = find_if(fir.beginPaths(), fir.endPaths(), 
+                      [strat,spec](IgnitionPath ip){return ip.species().sameSpecies(spec) &&
+                                                    ip.level() == strat.level() &&
+                                                    ip.type() == IgnitionPath::STRATUM_PATH;});
+          if (i < fir.endPaths())
+            //species ROS is the max of those of the plant and stratum
+            specROS = std::max(specROS, (*i).basicROS());
+        }
+        
+        //species-weighted sum
+        stratROS += specROS * spec.composition();
       } //end loop over strat.allSpecies()
     }
 
     if (strat.level() == Stratum::ELEVATED || strat.level() == Stratum::MID_STOREY) {
       //if no spread in stratum then ros = 0
       if(!fir.spreadsInStratum(strat.level()))
-	stratROS = 0;
+        stratROS = 0;
       else {
-	//is the stratum fire independent? If so, use basic ROS. NOTE that the criterion
-	//for independence uses the reported flame angle for strat, which explains why
-	//the following code is not contained in ForestIgnitionRun.
-	bool independent = false;
-	if (stratResults.flameAngle() <= slope() + ffm_settings::independentSpreadSensitivity) {
-	  //check species-weighted sum of average ros in last two time steps of stratum fire
-	  double specWeightedSum = 0;
-	  for (const IgnitionPath& ip : fir.paths()){
-	    if (ip.type() != IgnitionPath::STRATUM_PATH || ip.level() != strat.level())
-	      continue;
-	    if (ip.fullSize())
-	      specWeightedSum += 0.5*(ip.ros(ip.size() - 1) + ip.ros(ip.size() - 2))*ip.species().composition();
-	  }
-	  if (specWeightedSum >= ffm_settings::minRateForStratumSpread)
-	    independent = true;
-	}
-	if (independent) 
-	  stratROS = fir.speciesWeightedBasicROS(strat.level());
-	else {
-	  //computed species weighted max distance travelled in stratum, and species 
-	  //weighted time
-	  double distance = 0, time = 0;
-	  for (const IgnitionPath& ip : fir.paths()) {
-	    if (ip.type() != IgnitionPath::STRATUM_PATH || ip.level() != strat.level())
-	      continue;
-	    if (ip.spreads()){
-	      distance += ip.maxHorizontalRun()*ip.species().composition();
-	      time += (ip.startTimeStep() + ip.size())*ffm_settings::computationTimeInterval*
-		ip.species().composition();
-	    }
-	  }
-	  stratROS = time > 0 ? distance/time : 0;
-	}
+        //is the stratum fire independent? If so, use basic ROS. NOTE that the criterion
+        //for independence uses the reported flame angle for strat, which explains why
+        //the following code is not contained in ForestIgnitionRun.
+        bool independent = false;
+        if (stratResults.flameAngle() <= slope() + ffm_settings::independentSpreadSensitivity) {
+          //check species-weighted sum of average ros in last two time steps of stratum fire
+          double specWeightedSum = 0;
+          for (const IgnitionPath& ip : fir.paths()){
+            if (ip.type() != IgnitionPath::STRATUM_PATH || ip.level() != strat.level())
+              continue;
+            if (ip.fullSize())
+              specWeightedSum += 0.5*(ip.ros(ip.size() - 1) + ip.ros(ip.size() - 2))*ip.species().composition();
+          }
+          if (specWeightedSum >= ffm_settings::minRateForStratumSpread)
+            independent = true;
+        }
+        if (independent) 
+          stratROS = fir.speciesWeightedBasicROS(strat.level());
+        else {
+          //computed species weighted max distance travelled in stratum, and species 
+          //weighted time
+          double distance = 0, time = 0;
+          for (const IgnitionPath& ip : fir.paths()) {
+            if (ip.type() != IgnitionPath::STRATUM_PATH || ip.level() != strat.level())
+              continue;
+            if (ip.spreads()){
+              distance += ip.maxHorizontalRun()*ip.species().composition();
+              time += (ip.startTimeStep() + ip.size())*ffm_settings::computationTimeInterval*
+                ip.species().composition();
+            }
+          }
+          stratROS = time > 0 ? distance/time : 0;
+        }
       }
     }
 
     if (strat.level() == Stratum::CANOPY) {
 
       if (!fir1.spreadsInStratum(Stratum::CANOPY)) 
-	stratROS = 0;
+        stratROS = 0;
       else
-	stratROS = std::min(fir1.speciesWeightedBasicROS(Stratum::CANOPY), 
-			    fir1.activeCrownFireROS(overallResults));
+        stratROS = std::min(fir1.speciesWeightedBasicROS(Stratum::CANOPY), 
+                            fir1.activeCrownFireROS(overallResults));
 
       if (runTwoExists){
-	double stratROS2;
-	if (!fir2.spreadsInStratum(Stratum::CANOPY)) 
-	  stratROS2 = 0;
-	else
-	  stratROS2 = std::min(fir2.speciesWeightedBasicROS(Stratum::CANOPY), 
-			       fir2.activeCrownFireROS(overallResults));
-	stratROS = std::max(stratROS, stratROS2);
+        double stratROS2;
+        if (!fir2.spreadsInStratum(Stratum::CANOPY)) 
+          stratROS2 = 0;
+        else
+          stratROS2 = std::min(fir2.speciesWeightedBasicROS(Stratum::CANOPY), 
+                               fir2.activeCrownFireROS(overallResults));
+        stratROS = std::max(stratROS, stratROS2);
       }
     }
 
@@ -252,7 +252,7 @@ Results Location::results() const {
      overallResults.ros(overallResults.surfaceROS());
   else {
     auto i = max_element(overallResults.strataResultsBegin(), overallResults.strataResultsEnd(), 
-			 [](StratumResults sr1, StratumResults sr2){return sr1.ros() < sr2.ros();});
+                         [](StratumResults sr1, StratumResults sr2){return sr1.ros() < sr2.ros();});
     overallResults.ros(std::max((*i).ros(), overallResults.surfaceROS()));
   }
 
@@ -264,7 +264,7 @@ Results Location::results() const {
     overallResults.windReductionFactor(1);
   else
     overallResults.windReductionFactor(incidentWindSpeed_ / 
-				       forest_.windProfile(incidentWindSpeed_, 1.5, true));
+                                       forest_.windProfile(incidentWindSpeed_, 1.5, true));
 
   //*********************** Overall flame angle ****************************************
 
@@ -285,7 +285,7 @@ Results Location::results() const {
     std::vector<double> flameLengths;
     flameLengths.resize(fir.combinedFlames().size());
     transform(fir.beginCombinedFlames(), fir.endCombinedFlames(), flameLengths.begin(),
-	      [](Flame f){return f.flameLength() < 0.01 ? 0 : f.flameLength();});
+              [](Flame f){return f.flameLength() < 0.01 ? 0 : f.flameLength();});
     overallFlameLength = ffm_util::mean(flameLengths,true);
   }
   //overall flame length should be at least as large as the stratum flame lengths
@@ -301,7 +301,7 @@ Results Location::results() const {
     overallResults.flameHeight(overallResults.surfaceFlameHeight());
   else {
     auto i = max_element(overallResults.strataResultsBegin(), overallResults.strataResultsEnd(), 
-			 [](StratumResults sr1, StratumResults sr2){return sr1.flameHeight() < sr2.flameHeight();});
+                         [](StratumResults sr1, StratumResults sr2){return sr1.flameHeight() < sr2.flameHeight();});
     overallResults.flameHeight(std::max((*i).flameHeight(), overallResults.surfaceFlameHeight()));
   }
 
@@ -327,8 +327,8 @@ Results Location::results() const {
   //note conversion to km/h
   double wind =  forest_.windProfile(incidentWindSpeed_, 1.2, !runTwoExists)*3.6;
   overallResults.scorchHeightVanWagnerWithWind(0.74183*pow(byramIntensity,0.667)/
-					       (pow(0.025574*byramIntensity + 0.021433*pow(wind,3),0.5)*
-						(60 - weather_.airTempC())));
+                                               (pow(0.025574*byramIntensity + 0.021433*pow(wind,3),0.5)*
+                                                (60 - weather_.airTempC())));
 
   //********************** Type of crown fire *****************************************
 
@@ -336,7 +336,7 @@ Results Location::results() const {
     overallResults.crownFireType(Results::UNCLASSIFIED);
   else {
     auto i = find_if(overallResults.strataResultsBegin(), overallResults.strataResultsEnd(),
-		     [](StratumResults sr){return sr.level() == Stratum::CANOPY;});
+                     [](StratumResults sr){return sr.level() == Stratum::CANOPY;});
     if (i == overallResults.strataResultsEnd() || (*i).flameLength() < 0.5)
       overallResults.crownFireType(Results::UNCLASSIFIED);
     else
@@ -353,7 +353,7 @@ Results Location::results() const {
     double maxRun = 0;
     for (const IgnitionPath& ip : fir.paths()) {
       if (ip.level() != Stratum::CANOPY || ip.type() != IgnitionPath::STRATUM_PATH)
-	continue;
+        continue;
       maxRun = std::max(maxRun, ip.maxHorizontalRun());
     }
     overallResults.crownRunLength(maxRun);
@@ -371,7 +371,7 @@ Results Location::results() const {
   for(const StratumResults& sr : overallResults.strataResults()) {
     if(!fir.spreadsInStratum(sr.level())) continue;
     maxDepth = std::max(maxDepth, 
-			forest_.stratum(sr.level()).avFlameDuration() * sr.ros());
+                        forest_.stratum(sr.level()).avFlameDuration() * sr.ros());
   }
   overallResults.flameDepth(maxDepth);
 
@@ -448,7 +448,7 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
   double surfFlameAngle = flameAngle(surfFlameLength, surfWindSpeed, slope(), firelineLength_);
   double sfrt = forest_.surface().flameResidenceTime();
   std::vector<Flame> surfaceFlames(static_cast<int>(round(sfrt/ffm_settings::computationTimeInterval)), 
-				   Flame(surfFlameLength,surfFlameAngle,Pt(0,0), 0,ffm_settings::mainFlameDeltaTemp));
+                                   Flame(surfFlameLength,surfFlameAngle,Pt(0,0), 0,ffm_settings::mainFlameDeltaTemp));
 
   //initialise vector of pre-heating flames 
   //Note this is a small vector no bigger than 4, one element for each layer that contributes to 
@@ -456,10 +456,10 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
   std::vector<PreHeatingFlame> preHeatingFlames;
   double cumulativePreHeatingStartTime = 0;
   preHeatingFlames.push_back(PreHeatingFlame(Stratum::SURFACE, 
-					     Flame(surfFlameLength,surfFlameAngle,
-						   Pt(0,0),0,ffm_settings::mainFlameDeltaTemp),
-					     cumulativePreHeatingStartTime, 
-					     sfrt));
+                                             Flame(surfFlameLength,surfFlameAngle,
+                                                   Pt(0,0),0,ffm_settings::mainFlameDeltaTemp),
+                                             cumulativePreHeatingStartTime, 
+                                             sfrt));
     
   //initialise preHeatingEndTime to -1 which means that duration will be limited only by the 
   //end times of each individual preHeatingFlame. preHeatingEndTime will be set to the 
@@ -488,41 +488,41 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
       double flameSum = surfaceFlames.at(0).flameLength();
       double flameWeightedWind = surfWindSpeed*flameSum;
       for (const auto& s : strata()) {
-	if (s >= strat) break; 
-	//find the flameseries from stratum s
-	auto iter = find_if(allSpeciesWeightedStratumFlameSeries.begin(), 
-			    allSpeciesWeightedStratumFlameSeries.end(), 
-			    [s](FlameSeries fs){return fs.level() == s.level();});
-	if (iter == allSpeciesWeightedStratumFlameSeries.end()) 
-	  continue; //no output for stratum s
-	//if there is a connection then add the winds
-	if (find(flameConnections.begin(), flameConnections.end(), s.level()) < flameConnections.end() ||
-	    forest_.verticalAssociation(s.level(),strat.level())) {
-	  flameWeightedWind += (*iter).cappedMaxFlameLength() * 
-	    forest_.windProfile(incidentWindSpeed_, s.avMidHt(), includeCanopy);
-	  flameSum += (*iter).cappedMaxFlameLength();
-	}
+        if (s >= strat) break; 
+        //find the flameseries from stratum s
+        auto iter = find_if(allSpeciesWeightedStratumFlameSeries.begin(), 
+                            allSpeciesWeightedStratumFlameSeries.end(), 
+                            [s](FlameSeries fs){return fs.level() == s.level();});
+        if (iter == allSpeciesWeightedStratumFlameSeries.end()) 
+          continue; //no output for stratum s
+        //if there is a connection then add the winds
+        if (find(flameConnections.begin(), flameConnections.end(), s.level()) < flameConnections.end() ||
+            forest_.verticalAssociation(s.level(),strat.level())) {
+          flameWeightedWind += (*iter).cappedMaxFlameLength() * 
+            forest_.windProfile(incidentWindSpeed_, s.avMidHt(), includeCanopy);
+          flameSum += (*iter).cappedMaxFlameLength();
+        }
       }
       flameWeightedWind = flameSum > 0 ? flameWeightedWind / flameSum : 0; 
 
       //now compute the combined flames
       for (const auto& s : strata()) {
-	if (s >= strat) break; 
-	//find the flameseries for stratum s
-	auto iter = find_if(allSpeciesWeightedStratumFlameSeries.begin(), 
-			    allSpeciesWeightedStratumFlameSeries.end(), 
-			    [s] (FlameSeries fs) {return fs.level() == s.level();});
-	if (iter == allSpeciesWeightedStratumFlameSeries.end()) 
-	  continue; //no FlameSeries for stratum s
-	//if there is a connection then combine the flames
-	if (find(flameConnections.begin(), flameConnections.end(), s.level()) < flameConnections.end() ||
-	    forest_.verticalAssociation(s.level(),strat.level())) {
-	  //combine the flames
-	  incidentFlames = combineFlames(incidentFlames, (*iter).flames(),
-					 flameWeightedWind,
-					 slope(),
-					 firelineLength_);
-	}
+        if (s >= strat) break; 
+        //find the flameseries for stratum s
+        auto iter = find_if(allSpeciesWeightedStratumFlameSeries.begin(), 
+                            allSpeciesWeightedStratumFlameSeries.end(), 
+                            [s] (FlameSeries fs) {return fs.level() == s.level();});
+        if (iter == allSpeciesWeightedStratumFlameSeries.end()) 
+          continue; //no FlameSeries for stratum s
+        //if there is a connection then combine the flames
+        if (find(flameConnections.begin(), flameConnections.end(), s.level()) < flameConnections.end() ||
+            forest_.verticalAssociation(s.level(),strat.level())) {
+          //combine the flames
+          incidentFlames = combineFlames(incidentFlames, (*iter).flames(),
+                                         flameWeightedWind,
+                                         slope(),
+                                         firelineLength_);
+        }
       }
     }
 
@@ -556,61 +556,61 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
       //loop over ignition point scenarios
       for (int ignitPtScenario = -2; ignitPtScenario <= 2; ++ignitPtScenario) {
 
-	//compute scenario initial ignition point, make sure this is not below the surface
-	Pt iPt = spec.crown().pointInBase( 0.25*ignitPtScenario*spec.width());
-	if (iPt.y() < iPt.x()*tan(slope()))
-	  iPt = Pt(iPt.x(), iPt.x()*tan(slope()));
+        //compute scenario initial ignition point, make sure this is not below the surface
+        Pt iPt = spec.crown().pointInBase( 0.25*ignitPtScenario*spec.width());
+        if (iPt.y() < iPt.x()*tan(slope()))
+          iPt = Pt(iPt.x(), iPt.x()*tan(slope()));
 
-	//compute ignition path for this scenario
-	IgnitionPath iPath = computeIgnitionPath(incidentFlames, 
-						 PLANT_IGNITION_RUN, 
-						 preHeatingFlames, 
-						 preHeatingEndTime, 
-						 strat.level(), 
-						 spec,
-						 0,
-						 stratumWindSpeed, 
-						 iPt);
+        //compute ignition path for this scenario
+        IgnitionPath iPath = computeIgnitionPath(incidentFlames, 
+                                                 PLANT_IGNITION_RUN, 
+                                                 preHeatingFlames, 
+                                                 preHeatingEndTime, 
+                                                 strat.level(), 
+                                                 spec,
+                                                 0,
+                                                 stratumWindSpeed, 
+                                                 iPt);
 
-	//check to see if this ignition scenario has a longer flame length than any of the previous ones. 
-	//and replace stored IgnitionPath if necessary. Note we compare segment lengths
+        //check to see if this ignition scenario has a longer flame length than any of the previous ones. 
+        //and replace stored IgnitionPath if necessary. Note we compare segment lengths
 
-	if (!iPath.empty() && iPath.maxSegmentLength() > speciesIgnitionPath.maxSegmentLength())
-	  speciesIgnitionPath = iPath;
+        if (!iPath.empty() && iPath.maxSegmentLength() > speciesIgnitionPath.maxSegmentLength())
+          speciesIgnitionPath = iPath;
       }//end of loop over ignition scenarios
       
       //add the plant ignition path to ignitionRun
       if (!speciesIgnitionPath.empty()){
-	ignitionRun.addPath(speciesIgnitionPath);
-	//add component of species weighted ignition time 
-	speciesWeightedIgnitionTime += (speciesIgnitionPath.timeToIgnition() + 
-					speciesIgnitionPath.timeIgnitionToMaxFlame()) * comp;
-	//order the vector of ignited segments according to flamelength
-	speciesIgnitionPath.sortSegments();
+        ignitionRun.addPath(speciesIgnitionPath);
+        //add component of species weighted ignition time 
+        speciesWeightedIgnitionTime += (speciesIgnitionPath.timeToIgnition() + 
+                                        speciesIgnitionPath.timeIgnitionToMaxFlame()) * comp;
+        //order the vector of ignited segments according to flamelength
+        speciesIgnitionPath.sortSegments();
 
-	//loop over segments and add species-weighted flame information
-	unsigned i = 0;
-	for (const Seg& sg : speciesIgnitionPath.ignitedSegments()){
-	  if (ffm_numerics::leq(sg.length(), 0))
-	    break; //because the segments are sorted max to min
-	  double tmpFlameLength = spec.flameLength(sg.length());
-	  //if flame from any segment burns out past the edge of the plant then set connection to true
-	  if (!connection && 
-	      sg.start().x() + 
-	      tmpFlameLength*cos(windEffectFlameAngle(tmpFlameLength, stratumWindSpeed, slope()) > 0.5*spec.width())
-	      )
-	    connection = true;
-	  //add (species weighted) flame info to vector of flame lengths
-	  speciesWeightedFlameLengths.at(i) += comp*tmpFlameLength;
-	  speciesWeightedFlameDepths.at(i) += comp*sg.length();
-	  speciesWeightedFlameOrigins.at(i) += comp*sg.start();
-	  speciesAndFlameWeightedFlameTemps.at(i) += comp*tmpFlameLength *
-	    (spec.isGrass() && strat.level() == Stratum::NEAR_SURFACE ? 
-	     ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
-	  ++i;
-	}
-	//add the composition weighted origin from the largest (first after sorting) flame length
-	speciesWeightedFlameOrigin += comp*speciesIgnitionPath.ignitedSegments().front().start();
+        //loop over segments and add species-weighted flame information
+        unsigned i = 0;
+        for (const Seg& sg : speciesIgnitionPath.ignitedSegments()){
+          if (ffm_numerics::leq(sg.length(), 0))
+            break; //because the segments are sorted max to min
+          double tmpFlameLength = spec.flameLength(sg.length());
+          //if flame from any segment burns out past the edge of the plant then set connection to true
+          if (!connection && 
+              sg.start().x() + 
+              tmpFlameLength*cos(windEffectFlameAngle(tmpFlameLength, stratumWindSpeed, slope()) > 0.5*spec.width())
+              )
+            connection = true;
+          //add (species weighted) flame info to vector of flame lengths
+          speciesWeightedFlameLengths.at(i) += comp*tmpFlameLength;
+          speciesWeightedFlameDepths.at(i) += comp*sg.length();
+          speciesWeightedFlameOrigins.at(i) += comp*sg.start();
+          speciesAndFlameWeightedFlameTemps.at(i) += comp*tmpFlameLength *
+            (spec.isGrass() && strat.level() == Stratum::NEAR_SURFACE ? 
+             ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
+          ++i;
+        }
+        //add the composition weighted origin from the largest (first after sorting) flame length
+        speciesWeightedFlameOrigin += comp*speciesIgnitionPath.ignitedSegments().front().start();
       }
 
     } //end of first loop over species - plant ignition
@@ -622,28 +622,28 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
       //finish the flame weighting
       unsigned i = 0;
       for (auto& temp : speciesAndFlameWeightedFlameTemps) {
-	if (ffm_numerics::leq(speciesWeightedFlameLengths.at(i),0))
-	  break; //because the segments were ordered max to min
-	temp /= speciesWeightedFlameLengths.at(i);
-	++i;
+        if (ffm_numerics::leq(speciesWeightedFlameLengths.at(i),0))
+          break; //because the segments were ordered max to min
+        temp /= speciesWeightedFlameLengths.at(i);
+        ++i;
       }
 
       //do lateral merging of combined flame timeseries (Eq 5.74, 5.75) eg Fuels!G132
       for (double& fl : speciesWeightedFlameLengths) {
-	if (ffm_numerics::leq(fl,0)) break; //because ignited segments were ordered max to min
-	fl = laterallyMergedFlameLength(fl, firelineLength_, strat.avWidth(), strat.modelPlantSep());
+        if (ffm_numerics::leq(fl,0)) break; //because ignited segments were ordered max to min
+        fl = laterallyMergedFlameLength(fl, firelineLength_, strat.avWidth(), strat.modelPlantSep());
       }
 
       //make a FlameSeries to hold species-weighted plant flames
       FlameSeries speciesWeightedPlantFlames(strat.level()); 
       for (unsigned i = 0; i < (ffm_settings::maxTimeSteps); ++i) {
-	if (ffm_numerics::leq(speciesWeightedFlameLengths.at(i),0)) break; //because ordered max to min
-	speciesWeightedPlantFlames.addFlame(Flame(speciesWeightedFlameLengths.at(i),
-						  windEffectFlameAngle(speciesWeightedFlameLengths.at(i), 
-								       stratumWindSpeed, slope()),
-						  speciesWeightedFlameOrigins.at(i), 
-						  speciesWeightedFlameDepths.at(i),
-						  speciesAndFlameWeightedFlameTemps.at(i)));
+        if (ffm_numerics::leq(speciesWeightedFlameLengths.at(i),0)) break; //because ordered max to min
+        speciesWeightedPlantFlames.addFlame(Flame(speciesWeightedFlameLengths.at(i),
+                                                  windEffectFlameAngle(speciesWeightedFlameLengths.at(i), 
+                                                                       stratumWindSpeed, slope()),
+                                                  speciesWeightedFlameOrigins.at(i), 
+                                                  speciesWeightedFlameDepths.at(i),
+                                                  speciesAndFlameWeightedFlameTemps.at(i)));
       }
    
       //accumulate pre heating start time which is determined by the plant ignition sequences
@@ -656,34 +656,34 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
       //if strat is canopy then compute distance out along stratum for which bottom edge of canopy is heated
       double canopyHeatingDistance = 0;
       if (strat.level() == Stratum::CANOPY) {
-	double originOffsetX = 0;
-	//line to represent the bottom of the canopy
-	Line canopyLine(Pt(0,strat.avBottom()), slope());
+        double originOffsetX = 0;
+        //line to represent the bottom of the canopy
+        Line canopyLine(Pt(0,strat.avBottom()), slope());
 
-	//loop over the all the flame series. NOTE: we don't need to start with the surface, and the 
-	//flameseries are in order bottom stratum to top
-	for (std::vector<FlameSeries>::const_iterator it = allSpeciesWeightedStratumFlameSeries.begin();
-	     it != allSpeciesWeightedStratumFlameSeries.end();
-	     ++it) {
-	  Flame f = (*it).flames().front(); //first and largest flame because flameseries were sorted
-	  Ray plume = f.plume();
+        //loop over the all the flame series. NOTE: we don't need to start with the surface, and the 
+        //flameseries are in order bottom stratum to top
+        for (std::vector<FlameSeries>::const_iterator it = allSpeciesWeightedStratumFlameSeries.begin();
+             it != allSpeciesWeightedStratumFlameSeries.end();
+             ++it) {
+          Flame f = (*it).flames().front(); //first and largest flame because flameseries were sorted
+          Ray plume = f.plume();
 
-	  //if the plume is hot enough at the point where it intersects bottom of the canopy then 
-	  //update the canopyHeatingDistance
-	  Pt intersectionPt;
-	  plume.intersects(canopyLine, intersectionPt);
-	  if (f.plumeTemperature(intersectionPt, weather().airTempC()) >= ffm_settings::minTempForCanopyHeating)
-	    canopyHeatingDistance = std::max(canopyHeatingDistance, intersectionPt.x() + originOffsetX); 
-	  
-	  //now update the offset according to where plume intersects the next stratum
-	  //NOTE that if next stratum is the canopy then intersectionPt was found above
-	  if (it != allSpeciesWeightedStratumFlameSeries.end() - 1) //the next stratum is not the canopy
-	    plume.intersects(Line(Pt(0,forest_.stratum((*(it + 1)).level()).avBottom()), slope()), 
-			     intersectionPt);
+          //if the plume is hot enough at the point where it intersects bottom of the canopy then 
+          //update the canopyHeatingDistance
+          Pt intersectionPt;
+          plume.intersects(canopyLine, intersectionPt);
+          if (f.plumeTemperature(intersectionPt, weather().airTempC()) >= ffm_settings::minTempForCanopyHeating)
+            canopyHeatingDistance = std::max(canopyHeatingDistance, intersectionPt.x() + originOffsetX); 
+          
+          //now update the offset according to where plume intersects the next stratum
+          //NOTE that if next stratum is the canopy then intersectionPt was found above
+          if (it != allSpeciesWeightedStratumFlameSeries.end() - 1) //the next stratum is not the canopy
+            plume.intersects(Line(Pt(0,forest_.stratum((*(it + 1)).level()).avBottom()), slope()), 
+                             intersectionPt);
 
-	  originOffsetX += intersectionPt.x();
-	}
-	canopyHeatingDistance -= originOffsetX;   
+          originOffsetX += intersectionPt.x();
+        }
+        canopyHeatingDistance -= originOffsetX;   
       } 
 
       //reset vectors that hold species weighted flame information
@@ -695,111 +695,111 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
       //second loop over species - stratum ignition
       for (const auto& spec : strat.allSpecies()) {
 
-	double comp = spec.composition();
+        double comp = spec.composition();
 
-	//make a stratum polygon. 
-	std::vector<Pt> verts;
-	double xx = strat.modelPlantSep() - 0.5*strat.avWidth();
-	verts.push_back(Pt(xx, strat.avTop() + xx*tan(slope())));
-	verts.push_back(Pt(xx, strat.avBottom() + xx*tan(slope())));      
-	xx += 10000;
-	verts.push_back(Pt(xx, strat.avBottom() + xx*tan(slope())));      
-	verts.push_back(Pt(xx, strat.avTop() + xx*tan(slope())));
-	Poly stratumPoly(verts);
+        //make a stratum polygon. 
+        std::vector<Pt> verts;
+        double xx = strat.modelPlantSep() - 0.5*strat.avWidth();
+        verts.push_back(Pt(xx, strat.avTop() + xx*tan(slope())));
+        verts.push_back(Pt(xx, strat.avBottom() + xx*tan(slope())));      
+        xx += 10000;
+        verts.push_back(Pt(xx, strat.avBottom() + xx*tan(slope())));      
+        verts.push_back(Pt(xx, strat.avTop() + xx*tan(slope())));
+        Poly stratumPoly(verts);
 
-	//make a species based on this polygon
-	Species bigSpecies(comp,
-			   spec.name(),
-			   stratumPoly,
-			   spec.liveLeafMoisture(),
-			   spec.deadLeafMoisture(),
-			   spec.propDead(),
-			   spec.silFreeAshCont(),
-			   spec.ignitTemp(),
-			   spec.leafForm(),
-			   spec.leafThick(),
-			   spec.leafWidth(),
-			   spec.leafLength(),
-			   spec.leafSep(),
-			   spec.stemOrder(),
-			   spec.width(),
-			   std::max(spec.clumpSep(), strat.modelPlantSep() - strat.avWidth()));
+        //make a species based on this polygon
+        Species bigSpecies(comp,
+                           spec.name(),
+                           stratumPoly,
+                           spec.liveLeafMoisture(),
+                           spec.deadLeafMoisture(),
+                           spec.propDead(),
+                           spec.silFreeAshCont(),
+                           spec.ignitTemp(),
+                           spec.leafForm(),
+                           spec.leafThick(),
+                           spec.leafWidth(),
+                           spec.leafLength(),
+                           spec.leafSep(),
+                           spec.stemOrder(),
+                           spec.width(),
+                           std::max(spec.clumpSep(), strat.modelPlantSep() - strat.avWidth()));
       
-	//initialise an ignition path for the stratum ignition
-	IgnitionPath speciesIgnitionPath;
+        //initialise an ignition path for the stratum ignition
+        IgnitionPath speciesIgnitionPath;
 
-	//compute the initial point for the ignition
-	Ray r(speciesWeightedFlameOrigin, speciesWeightedPlantFlames.flames().front().angle());
-	Pt iPt;
-	if (!r.intersects(stratumPoly, iPt)) {
-	  ;//what happens here? nothing, we are left with an empty ignition path
-	} else {
-	  //compute ignition path, note no preheating here
-	  speciesIgnitionPath = computeIgnitionPath(speciesWeightedPlantFlames.flames(),
-						    !PLANT_IGNITION_RUN,
-						    std::vector<PreHeatingFlame>(),
-						    0,
-						    strat.level(),
-						    bigSpecies, 
-						    canopyHeatingDistance,
-						    stratumWindSpeed,
-						    iPt); 
-	}
+        //compute the initial point for the ignition
+        Ray r(speciesWeightedFlameOrigin, speciesWeightedPlantFlames.flames().front().angle());
+        Pt iPt;
+        if (!r.intersects(stratumPoly, iPt)) {
+          ;//what happens here? nothing, we are left with an empty ignition path
+        } else {
+          //compute ignition path, note no preheating here
+          speciesIgnitionPath = computeIgnitionPath(speciesWeightedPlantFlames.flames(),
+                                                    !PLANT_IGNITION_RUN,
+                                                    std::vector<PreHeatingFlame>(),
+                                                    0,
+                                                    strat.level(),
+                                                    bigSpecies, 
+                                                    canopyHeatingDistance,
+                                                    stratumWindSpeed,
+                                                    iPt); 
+        }
 
 
-	if (!speciesIgnitionPath.empty()) {
-	  ignitionRun.addPath(speciesIgnitionPath);
+        if (!speciesIgnitionPath.empty()) {
+          ignitionRun.addPath(speciesIgnitionPath);
 
-	  //add component of species weighted ignition time 
-	  // speciesWeightedIgnitionTime += (speciesIgnitionPath.timeToIgnition() + 
-	  // 				  speciesIgnitionPath.timeIgnitionToMaxFlame()) * comp;
-	  //order the vector of ignited segments according to flamelength
-	  speciesIgnitionPath.sortSegments();
+          //add component of species weighted ignition time 
+          // speciesWeightedIgnitionTime += (speciesIgnitionPath.timeToIgnition() + 
+          //                              speciesIgnitionPath.timeIgnitionToMaxFlame()) * comp;
+          //order the vector of ignited segments according to flamelength
+          speciesIgnitionPath.sortSegments();
 
-	  int i = 0;
-	  for (const Seg& sg : speciesIgnitionPath.ignitedSegments()){
-	    double flameLen = spec.flameLength(sg.length());
-	    speciesWeightedFlameLengths.at(i) += comp*flameLen;
-	    speciesWeightedFlameDepths.at(i) += comp*sg.length();
-	    speciesAndFlameWeightedFlameTemps.at(i) += comp*flameLen*
-	      (spec.isGrass() && strat.level() == Stratum::NEAR_SURFACE ? 
-	       ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
-	    speciesWeightedFlameOrigins.at(i) += comp*sg.start();
-	    ++i;
-	  }
-	}
+          int i = 0;
+          for (const Seg& sg : speciesIgnitionPath.ignitedSegments()){
+            double flameLen = spec.flameLength(sg.length());
+            speciesWeightedFlameLengths.at(i) += comp*flameLen;
+            speciesWeightedFlameDepths.at(i) += comp*sg.length();
+            speciesAndFlameWeightedFlameTemps.at(i) += comp*flameLen*
+              (spec.isGrass() && strat.level() == Stratum::NEAR_SURFACE ? 
+               ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
+            speciesWeightedFlameOrigins.at(i) += comp*sg.start();
+            ++i;
+          }
+        }
 
       }//end of second loop over species - stratum ignition
 
       //finish the flame weighting
       i = 0;
       for (auto& temp :  speciesAndFlameWeightedFlameTemps) {
-	if (ffm_numerics::almostZero(speciesWeightedFlameLengths.at(i)))
-	  break; //because the segments were ordered max to min
-	temp /= speciesWeightedFlameLengths.at(i);
-	++i;
+        if (ffm_numerics::almostZero(speciesWeightedFlameLengths.at(i)))
+          break; //because the segments were ordered max to min
+        temp /= speciesWeightedFlameLengths.at(i);
+        ++i;
       }
 
       //make a species weighted flame series from the stratum calculations. This flame series will 
       //become part of the incident flames for the next stratum
       FlameSeries speciesWeightedStratumFlames(strat.level()); 
       for (unsigned i = 0; i < (ffm_settings::maxTimeSteps); ++i) {
-	if (ffm_numerics::leq(speciesWeightedFlameLengths.at(i),0)) break; //because ordered max to min
-	speciesWeightedStratumFlames.addFlame(Flame(speciesWeightedFlameLengths.at(i),
-						    windEffectFlameAngle(speciesWeightedFlameLengths.at(i), 
-									 stratumWindSpeed, slope()),
-						    speciesWeightedFlameOrigins.at(i), 
-						    speciesWeightedFlameDepths.at(i),
-						    speciesAndFlameWeightedFlameTemps.at(i)));
+        if (ffm_numerics::leq(speciesWeightedFlameLengths.at(i),0)) break; //because ordered max to min
+        speciesWeightedStratumFlames.addFlame(Flame(speciesWeightedFlameLengths.at(i),
+                                                    windEffectFlameAngle(speciesWeightedFlameLengths.at(i), 
+                                                                         stratumWindSpeed, slope()),
+                                                    speciesWeightedFlameOrigins.at(i), 
+                                                    speciesWeightedFlameDepths.at(i),
+                                                    speciesAndFlameWeightedFlameTemps.at(i)));
       }
       //compare maximum flame lengths from the species weighted plant flames and the 
       //species weighted stratum flames to determine which of these will be used to
       //form the incdent flames for the higher strata
       const FlameSeries& speciesWeightedFlames = (!speciesWeightedStratumFlames.isNull() && 
-						  speciesWeightedStratumFlames.flames().at(0).flameLength() >= 
-						  speciesWeightedPlantFlames.flames().at(0).flameLength() 
-						  ?
-						  speciesWeightedStratumFlames : speciesWeightedPlantFlames);
+                                                  speciesWeightedStratumFlames.flames().at(0).flameLength() >= 
+                                                  speciesWeightedPlantFlames.flames().at(0).flameLength() 
+                                                  ?
+                                                  speciesWeightedStratumFlames : speciesWeightedPlantFlames);
       //push the species weighted flame series onto the vector from which the incident flames will be 
       //computed for the next stratum 
       allSpeciesWeightedStratumFlameSeries.push_back(speciesWeightedFlames);
@@ -808,23 +808,23 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
       //preheating flame itself comes from the stratum ignition sequences
       double mfl = speciesWeightedFlames.meanFlameLength();
       preHeatingFlames.push_back(PreHeatingFlame(strat.level(),
-						 Flame(mfl,
-						       windEffectFlameAngle(mfl,stratumWindSpeed,slope()),
-						       speciesWeightedFlames.meanOrigin(),
-						       speciesWeightedFlames.meanDepthIgnited(),
-						       speciesWeightedFlames.meanDeltaTemperature()),
-						 cumulativePreHeatingStartTime,
-						 cumulativePreHeatingStartTime 
-						 + speciesWeightedFlames.nonNullCount()
-						 *ffm_settings::computationTimeInterval));
+                                                 Flame(mfl,
+                                                       windEffectFlameAngle(mfl,stratumWindSpeed,slope()),
+                                                       speciesWeightedFlames.meanOrigin(),
+                                                       speciesWeightedFlames.meanDepthIgnited(),
+                                                       speciesWeightedFlames.meanDeltaTemperature()),
+                                                 cumulativePreHeatingStartTime,
+                                                 cumulativePreHeatingStartTime 
+                                                 + speciesWeightedFlames.nonNullCount()
+                                                 *ffm_settings::computationTimeInterval));
       //check whether largest (ie first after sorting) species weighted stratum flame is longer than
       //the largest species weighted plant flame and if so set connection. This is part of the (strange)
       //calculation from the spreadsheet to determine whether or not a stratum can ignite an upper stratum 
       //see for example Fuels!B266 and B269
       if (!connection && !speciesWeightedStratumFlames.isNull() &&
-	  speciesWeightedStratumFlames.flames().at(0).flameLength() > 
-	  speciesWeightedPlantFlames.flames().at(0).flameLength())
-	connection = true;
+          speciesWeightedStratumFlames.flames().at(0).flameLength() > 
+          speciesWeightedPlantFlames.flames().at(0).flameLength())
+        connection = true;
     }//end of stratum ignition computation
 
     if (connection) 
@@ -845,17 +845,17 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
     for (const auto& s : strata()) {
       //find the flameseries from stratum s
       auto i = find_if(allSpeciesWeightedStratumFlameSeries.begin(), 
-		       allSpeciesWeightedStratumFlameSeries.end(), 
-		       [s](FlameSeries fs){return fs.level() == s.level();});
+                       allSpeciesWeightedStratumFlameSeries.end(), 
+                       [s](FlameSeries fs){return fs.level() == s.level();});
       if (i == allSpeciesWeightedStratumFlameSeries.end()) 
-	continue; //no output for stratum s
+        continue; //no output for stratum s
       //if there is a connection then add the winds
       if (find(flameConnections.begin(), flameConnections.end(), s.level()) < flameConnections.end() ||
-	  forest_.verticalAssociation(s.level(),Stratum::CANOPY) ||
-	  s.level() == Stratum::CANOPY) {
-	flameWeightedWind += (*i).cappedMaxFlameLength() * 
-	  forest_.windProfile(incidentWindSpeed_, s.avMidHt(), includeCanopy);
-	flameSum += (*i).cappedMaxFlameLength();
+          forest_.verticalAssociation(s.level(),Stratum::CANOPY) ||
+          s.level() == Stratum::CANOPY) {
+        flameWeightedWind += (*i).cappedMaxFlameLength() * 
+          forest_.windProfile(incidentWindSpeed_, s.avMidHt(), includeCanopy);
+        flameSum += (*i).cappedMaxFlameLength();
       }
     }
     flameWeightedWind = flameSum > 0 ? flameWeightedWind / flameSum : 0; 
@@ -864,19 +864,19 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
     for (const auto& s : strata()) {
       //find the flameseries for stratum s
       auto i = find_if(allSpeciesWeightedStratumFlameSeries.begin(), 
-		       allSpeciesWeightedStratumFlameSeries.end(), 
-		       [s] (FlameSeries fs) {return fs.level() == s.level();});
+                       allSpeciesWeightedStratumFlameSeries.end(), 
+                       [s] (FlameSeries fs) {return fs.level() == s.level();});
       if (i == allSpeciesWeightedStratumFlameSeries.end()) 
-	continue; //no FlameSeries for stratum s
+        continue; //no FlameSeries for stratum s
       //if there is a connection then combine the flames
       if (find(flameConnections.begin(), flameConnections.end(), s.level()) < flameConnections.end() ||
-	  forest_.verticalAssociation(s.level(),Stratum::CANOPY) ||
-	  s.level() == Stratum::CANOPY) {
-	//combine the flames
-	allStrataCombinedFlames = combineFlames(allStrataCombinedFlames, (*i).flames(),
-						flameWeightedWind,
-						slope(),
-						firelineLength_);
+          forest_.verticalAssociation(s.level(),Stratum::CANOPY) ||
+          s.level() == Stratum::CANOPY) {
+        //combine the flames
+        allStrataCombinedFlames = combineFlames(allStrataCombinedFlames, (*i).flames(),
+                                                flameWeightedWind,
+                                                slope(),
+                                                firelineLength_);
       }
     }
   }
@@ -957,20 +957,20 @@ flames have extinguished, or when there is no further potential path of ignition
 the plant, ie when the ignition path has reached the top or side of the plant.
 */
 IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFlames,
-					   const bool& plantFlameRun,
-					   std::vector<PreHeatingFlame> preHeatingFlames,
-					   const double& preHeatingEndTime,
-					   const Stratum::LevelType& level,
-					   const Species& spec,
-					   const double& canopyHeatingDistance,
-					   const double& windSpeed,
-					   const Pt& initialPt) const {	
+                                           const bool& plantFlameRun,
+                                           std::vector<PreHeatingFlame> preHeatingFlames,
+                                           const double& preHeatingEndTime,
+                                           const Stratum::LevelType& level,
+                                           const Species& spec,
+                                           const double& canopyHeatingDistance,
+                                           const double& windSpeed,
+                                           const Pt& initialPt) const { 
 
 
 
   //initialise ignition path 
   IgnitionPath iPath(plantFlameRun ? IgnitionPath::PLANT_PATH : IgnitionPath::STRATUM_PATH,
-		     level, spec, -99);
+                     level, spec, -99);
 
   //pop the last pre-heating flame off the vector of pre-heating flames because that level will
   //provide the direct heating
@@ -999,13 +999,13 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
     if (!plantFlameRun && !iPath.empty()) {
       int sz = iPath.size();
       if (sz == 1)
-	modifiedWindSpeed = windSpeed - 
-	  std::max(0.0,
-		   iPath.ignitedSegment(0).end().x() - initialPt.x())/ffm_settings::computationTimeInterval;
+        modifiedWindSpeed = windSpeed - 
+          std::max(0.0,
+                   iPath.ignitedSegment(0).end().x() - initialPt.x())/ffm_settings::computationTimeInterval;
       else
-	modifiedWindSpeed = windSpeed - 
-	  std::max(0.0,iPath.ignitedSegment(sz-1).end().x() - iPath.ignitedSegment(sz-2).end().x())/
-	  ffm_settings::computationTimeInterval;
+        modifiedWindSpeed = windSpeed - 
+          std::max(0.0,iPath.ignitedSegment(sz-1).end().x() - iPath.ignitedSegment(sz-2).end().x())/
+          ffm_settings::computationTimeInterval;
     }
 
     //get plant flame from previous time step
@@ -1018,9 +1018,9 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
     //though this is not possible under current model because of reordering
     if (plantFlame.isNull() && incidentFlame.isNull()) {
       if (timeStep <= incidentFlames.size())
-	continue; 
+        continue; 
       else
-	break;
+        break;
     }
 
     //compute potential ignition distance for plant flame 
@@ -1030,7 +1030,7 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
       double intsctLen = r.intersectionLength(spec.crown());
       double ignitLen = plantFlame.inversePlumeTemperature(spec.ignitionTemp(),weather_.airTempC());
       maxPlantPath = std::min(r.intersectionLength(spec.crown()),
-			      plantFlame.inversePlumeTemperature(spec.ignitionTemp(),weather_.airTempC()));
+                              plantFlame.inversePlumeTemperature(spec.ignitionTemp(),weather_.airTempC()));
     }
 
     //compute incident flame characteristics. maxIncidentPath is the length of the segment in the 
@@ -1041,19 +1041,19 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
     Line surfaceLine(Pt(0,0), slope());
     if (!incidentFlame.isNull()) {
       if (plantFlameRun) {
-	//if possible set the incidentFlameOrigin to a point on the surface such that a ray starting
-	//at that point with angle incidentFlame.angle() will pass through iPt. If this is not possible
-	//return false, but this should never occur because flame angles are always greater than the slope.
-	if (!surfaceLine.originOnLine(incidentFlame.angle(), iPt, incidentFlameOrigin))
-	  ; //this should not happen 
-      }	else
-	incidentFlameOrigin = incidentFlame.origin();
+        //if possible set the incidentFlameOrigin to a point on the surface such that a ray starting
+        //at that point with angle incidentFlame.angle() will pass through iPt. If this is not possible
+        //return false, but this should never occur because flame angles are always greater than the slope.
+        if (!surfaceLine.originOnLine(incidentFlame.angle(), iPt, incidentFlameOrigin))
+          ; //this should not happen 
+      } else
+        incidentFlameOrigin = incidentFlame.origin();
       Ray r(iPt, incidentFlame.angle());
       double pathDistance = r.intersectionLength(spec.crown());
       double ignitionDistance = 
-	std::max(0.0,
-		 incidentFlame.inversePlumeTemperature(spec.ignitionTemp(),weather_.airTempC()) 
-		 - (iPt - incidentFlameOrigin).norm());
+        std::max(0.0,
+                 incidentFlame.inversePlumeTemperature(spec.ignitionTemp(),weather_.airTempC()) 
+                 - (iPt - incidentFlameOrigin).norm());
       maxIncidentPath = std::min(pathDistance, ignitionDistance);
     } 
 
@@ -1066,77 +1066,97 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
       double pathAngle = maxPlantPath > maxIncidentPath ? plantFlame.angle() : incidentFlame.angle();
 
       for (auto& phf : preHeatingFlames) {
-	if (!phf.flame().isNull()) {
-	  Pt originPt;
-	  Line tmpLine(phf.flame().origin(), slope());
-	  if (!tmpLine.originOnLine(phf.flame().angle(), ePt, originPt))
-	    ; 
-	  phf.flame().origin(originPt);
-	}
+        if (!phf.flame().isNull()) {
+          Pt originPt;
+          Line tmpLine(phf.flame().origin(), slope());
+          if (!tmpLine.originOnLine(phf.flame().angle(), ePt, originPt))
+            ; 
+          phf.flame().origin(originPt);
+        }
       }
       //the possible ignition distance is divided into numPenetrationSteps segments and we test each
       //segment in turn for ignition
       for(int step = 1; step <= ffm_settings::numPenetrationSteps; ++step) {
-	Pt testPt = ePt + (pathLength/ffm_settings::numPenetrationSteps)*Pt(cos(pathAngle),sin(pathAngle));
-	double dryingFactor = 1;
+        Pt testPt = ePt + (pathLength/ffm_settings::numPenetrationSteps)*Pt(cos(pathAngle),sin(pathAngle));
+        double dryingFactor = 1;
+        double dryingTemp;
 
-	//compute the drying at testPt from preheating flames. NOTE that we have already popped the last
-	//of the preheating flames off the vector because that level will provide the direct heating
-	for (const auto& phf : preHeatingFlames){
-	  if (!phf.flame().isNull()) {
-	    //compute the temperature at the test point from the drying flame
-	    double dryingTemp = phf.flame().plumeTemperature((testPt - phf.flame().origin()).norm(), 
-							     weather_.airTempC());
-	    //compute the IDT at the test point
-	    double idt = spec.ignitionDelayTime(dryingTemp) * 
-	      (isGrass ? ffm_settings::grassIDTReduction : 1.0);
-	    dryingFactor *= std::max(0.0, 1 - phf.duration(preHeatingEndTime) / idt);
-	  }
-	  if (dryingFactor <= 0) break;
-	}
+        //compute the drying at testPt from preheating flames. NOTE that we have already popped the last
+        //of the preheating flames off the vector because that level will provide the direct heating
+        for (const auto& phf : preHeatingFlames){
+          if (!phf.flame().isNull()) {
+            //compute the temperature at the test point from the drying flame
+            dryingTemp = phf.flame().plumeTemperature((testPt - phf.flame().origin()).norm(), 
+                                                             weather_.airTempC());
+            //compute the IDT at the test point
+            double idt = spec.ignitionDelayTime(dryingTemp) * 
+              (isGrass ? ffm_settings::grassIDTReduction : 1.0);
+            
+            double duration = phf.duration(preHeatingEndTime);
+            dryingFactor *= std::max(0.0, 1 - duration / idt);
 
-	//drying from the incident flames, but only if testPt is not already completely dry
-	if (dryingFactor > 0) {
-	  int numDryingSteps = std::min(timeStep - 1, static_cast<int>(incidentFlames.size()));
-	  for(int i = 1; i <= numDryingSteps; ++i){
-	    Flame dryingFlame = incidentFlames.at(i - 1);
-	    if (dryingFlame.isNull()) continue;
-	    Pt dryingFlameOrigin;
-	    if (plantFlameRun) {
-	      if (!surfaceLine.originOnLine(dryingFlame.angle(), iPt, dryingFlameOrigin))
-		; //this should not happen 
-	    }	else
-	      dryingFlameOrigin = dryingFlame.origin();
-	    double dryingTemp = dryingFlame.plumeTemperature((testPt - dryingFlameOrigin).norm(), weather_.airTempC());
-	    double dryingIDT = spec.ignitionDelayTime(dryingTemp)* 
-	      (isGrass ? ffm_settings::grassIDTReduction : 1.0);
-	    dryingFactor *= std::max(0.0,1 - ffm_settings::computationTimeInterval / dryingIDT);
-	  }
-	}
+            if (iPt == initialPt && timeStep == 1 && step == 1) {
+              iPath.addPreIgnitionData( PreIgnitionData::preheating(dryingFactor, dryingTemp, duration ) );
+            }
+          }
 
-	//drying from the plant flames, but only if testPt is not already completely dry
-	if (dryingFactor > 0) {
-	  for (const Flame& dryingFlame : plantFlames){
-	    if (dryingFlame.isNull()) continue;
-	    double dryingTemp = dryingFlame.plumeTemperature(testPt, weather_.airTempC());
-	    double dryingIDT = spec.ignitionDelayTime(dryingTemp)* 
-	      (isGrass ? ffm_settings::grassIDTReduction : 1.0);
-	    dryingFactor *= std::max(0.0, 1 - ffm_settings::computationTimeInterval / dryingIDT);
-	  }
-	}
+          if (dryingFactor <= 0) 
+            break; 
+        }
 
-	//compute temperatures at test Pt from incident flame and plant flame
-	double incidentTemp = incidentFlame.plumeTemperature((testPt - incidentFlameOrigin).norm(), weather_.airTempC());
-	double plantTemp = plantFlame.plumeTemperature((testPt - plantFlame.origin()).norm(), weather_.airTempC());
-	double maxTemp = std::max(incidentTemp, plantTemp);
-	double idt = dryingFactor * spec.ignitionDelayTime(maxTemp)* 
-	  (isGrass ? ffm_settings::grassIDTReduction : 1.0);
+        //drying from the incident flames, but only if testPt is not already completely dry
+        if (dryingFactor > 0) {
+          int numDryingSteps = std::min(timeStep - 1, static_cast<int>(incidentFlames.size()));
+          for(int i = 1; i <= numDryingSteps; ++i){
+            Flame dryingFlame = incidentFlames.at(i - 1);
+            if (dryingFlame.isNull()) continue;
+            Pt dryingFlameOrigin;
+            if (plantFlameRun) {
+              if (!surfaceLine.originOnLine(dryingFlame.angle(), iPt, dryingFlameOrigin))
+                ; //this should not happen 
+            }   else
+              dryingFlameOrigin = dryingFlame.origin();
+            dryingTemp = dryingFlame.plumeTemperature((testPt - dryingFlameOrigin).norm(), weather_.airTempC());
+            double dryingIDT = spec.ignitionDelayTime(dryingTemp)* 
+              (isGrass ? ffm_settings::grassIDTReduction : 1.0);
+            dryingFactor *= std::max(0.0,1 - ffm_settings::computationTimeInterval / dryingIDT);
+          }
+        }
+
+        //drying from the plant flames, but only if testPt is not already completely dry
+        if (dryingFactor > 0) {
+          for (const Flame& dryingFlame : plantFlames){
+            if (dryingFlame.isNull()) continue;
+            dryingTemp = dryingFlame.plumeTemperature(testPt, weather_.airTempC());
+            double dryingIDT = spec.ignitionDelayTime(dryingTemp)* 
+              (isGrass ? ffm_settings::grassIDTReduction : 1.0);
+            dryingFactor *= std::max(0.0, 1 - ffm_settings::computationTimeInterval / dryingIDT);
+          }
+        }
+
+	if (iPt == initialPt && step == 1) {
+          iPath.addPreIgnitionData( PreIgnitionData::incident(dryingFactor, dryingTemp) );
+        }
+
+        //compute temperatures at test Pt from incident flame and plant flame
+        double incidentTemp = incidentFlame.plumeTemperature((testPt - incidentFlameOrigin).norm(), weather_.airTempC());
+        double plantTemp = plantFlame.plumeTemperature((testPt - plantFlame.origin()).norm(), weather_.airTempC());
+        double maxTemp = std::max(incidentTemp, plantTemp);
+        double idt = dryingFactor * spec.ignitionDelayTime(maxTemp)* 
+          (isGrass ? ffm_settings::grassIDTReduction : 1.0);
       
-	//if ignition does not occur for testPt then break from loop over penetration steps
-	if (idt > ffm_settings::computationTimeInterval || maxTemp < spec.ignitionTemp())
-	  break;
-	//if ignition occurred then reset end pt and continue
-	ePt = testPt;
+        //if ignition does not occur for testPt then break from loop over penetration steps
+        if (idt > ffm_settings::computationTimeInterval || maxTemp < spec.ignitionTemp())
+          break;
+
+        //if we get here ignition has occurred, so reset end pt and continue
+
+        if (iPt == initialPt && step == 1) {
+	  double finalDryingFactor = std::max(0.0, 1.0 - ffm_settings::computationTimeInterval / idt); 
+          iPath.addPreIgnitionData( PreIgnitionData::ignition(finalDryingFactor, maxTemp) );
+        }
+
+        ePt = testPt;
       }//end of loop over penetrations steps
     }
 
@@ -1148,34 +1168,34 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
     
     if (ignition){
       if (iPath.empty()) {
-	iPath.addSegment(Seg(iPt,ePt));
-	plantFlames.push_back(iPath.flame(modifiedWindSpeed, slope()));
+        iPath.addSegment(Seg(iPt,ePt));
+        plantFlames.push_back(iPath.flame(modifiedWindSpeed, slope()));
       } else {
-	//compute flame duration and hence start point of new segment
-	int fd;
-	if (!plantFlameRun && (level == Stratum::CANOPY) && (iPt.x() > canopyHeatingDistance))
-	  //flame residence time is reduced for stratum ignition in canopy if the canopy has not
-	  //been heated to sufficient temperature
-	  //fd = round(ffm_settings::reducedCanopyFlameResidenceTime/ffm_settings::computationTimeInterval);
-	  fd = ceil(ffm_settings::reducedCanopyFlameResidenceTime/ffm_settings::computationTimeInterval);
-	else
-	  // fd = round(spec.flameDuration()
-	  // 	     /ffm_settings::computationTimeInterval);
-	  fd = ceil(spec.flameDuration()
-		    /ffm_settings::computationTimeInterval);
-	Pt segStart = iPath.size() < fd ? 
-	  iPath.ignitedSegments().front().start() : iPath.ignitedSegments().at(iPath.size()-fd).end();
-	//If the potential incident flame and plant flame path lengths are both zero and 
-	//the start point of the new segment is equal to its end point then break from the loop and
-	//therefore end the ignition path computation.
-	//There is a VERY slight problem with this in that later incident flames may have a different
-	//angle and therefore a non-zero potential path. But this is unlikely and the alternative is 
-	//to keep the loop going for the full maxTimeSteps after ignition, which seems wasteful.
-	if(!ffm_numerics::almostZero(maxIncidentPath) || !ffm_numerics::almostZero(maxPlantPath) || segStart != ePt) {
-	  iPath.addSegment(Seg(segStart, ePt));
-	  plantFlames.push_back(iPath.flame(modifiedWindSpeed, slope()));
-	} else
-	  break; //from loop over time steps
+        //compute flame duration and hence start point of new segment
+        int fd;
+        if (!plantFlameRun && (level == Stratum::CANOPY) && (iPt.x() > canopyHeatingDistance))
+          //flame residence time is reduced for stratum ignition in canopy if the canopy has not
+          //been heated to sufficient temperature
+          //fd = round(ffm_settings::reducedCanopyFlameResidenceTime/ffm_settings::computationTimeInterval);
+          fd = ceil(ffm_settings::reducedCanopyFlameResidenceTime/ffm_settings::computationTimeInterval);
+        else
+          // fd = round(spec.flameDuration()
+          //         /ffm_settings::computationTimeInterval);
+          fd = ceil(spec.flameDuration()
+                    /ffm_settings::computationTimeInterval);
+        Pt segStart = iPath.size() < fd ? 
+          iPath.ignitedSegments().front().start() : iPath.ignitedSegments().at(iPath.size()-fd).end();
+        //If the potential incident flame and plant flame path lengths are both zero and 
+        //the start point of the new segment is equal to its end point then break from the loop and
+        //therefore end the ignition path computation.
+        //There is a VERY slight problem with this in that later incident flames may have a different
+        //angle and therefore a non-zero potential path. But this is unlikely and the alternative is 
+        //to keep the loop going for the full maxTimeSteps after ignition, which seems wasteful.
+        if(!ffm_numerics::almostZero(maxIncidentPath) || !ffm_numerics::almostZero(maxPlantPath) || segStart != ePt) {
+          iPath.addSegment(Seg(segStart, ePt));
+          plantFlames.push_back(iPath.flame(modifiedWindSpeed, slope()));
+        } else
+          break; //from loop over time steps
       }
       //reset ignition point
       iPt = ePt;

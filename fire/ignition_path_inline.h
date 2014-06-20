@@ -15,8 +15,11 @@ inline  IgnitionPath::IgnitionPath() :
   level_(Stratum::UNKNOWN_LEVEL), 
   species_(), 
   startTimeStep_(-99), 
-  ignitedSegments_() {ignitedSegments_.reserve(ffm_settings::maxTimeSteps);}
-
+  ignitedSegments_(), 
+  preIgnitionData_()
+  {
+    ignitedSegments_.reserve(ffm_settings::maxTimeSteps);
+  }
 
 /*!\brief Standard constructor.
   \param pathType
@@ -32,7 +35,11 @@ inline IgnitionPath::IgnitionPath(const PathType& pathType,
   level_(lev),  
   species_(species),
   startTimeStep_(startTimeStep),
-  ignitedSegments_() {ignitedSegments_.reserve(ffm_settings::maxTimeSteps);}
+  ignitedSegments_(), 
+  preIgnitionData_()
+  {
+    ignitedSegments_.reserve(ffm_settings::maxTimeSteps);
+  }
 		    
 //accessors 
 
@@ -67,6 +74,11 @@ inline std::vector<Seg> IgnitionPath::ignitedSegments() const {return ignitedSeg
 */
 inline Seg IgnitionPath::ignitedSegment(const int& i) const {return ignitedSegments_.at(i);}
   
+/*!\brief Pre-ignition data (pre-heating, incident flames, and final value)
+  \return The vector of PreIgnitionData instances.
+*/
+inline std::vector<PreIgnitionData> IgnitionPath::preIgnitionData() const {return preIgnitionData_;}
+
 //mutators
 
 /*!\brief Sets the starting time step.
@@ -80,6 +92,11 @@ inline void IgnitionPath::startTimeStep(const int& startTimeStep) {
   \param seg
 */
 inline void IgnitionPath::addSegment(const Seg& seg) {ignitedSegments_.push_back(seg);} 
+
+/*!\brief Adds a pre-ignition data rec
+  \param data
+*/
+inline void IgnitionPath::addPreIgnitionData(const PreIgnitionData& data) {preIgnitionData_.push_back(data);} 
 
 //other methods
 

@@ -1,0 +1,7 @@
+# files from build
+*.exe
+*.o
+
+# vim backup files
+*~
+
