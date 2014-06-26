@@ -1107,8 +1107,8 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
         for (const auto& phf : preHeatingFlames){
           if (!phf.flame().isNull()) {
             //compute the temperature at the test point from the drying flame
-            dryingTemp = phf.flame().plumeTemperature((testPt - phf.flame().origin()).norm(), 
-                                                             weather_.airTempC());
+            double distToFlame = (testPt - phf.flame().origin()).norm();
+            dryingTemp = phf.flame().plumeTemperature(distToFlame, weather_.airTempC());
             //compute the IDT at the test point
             double idt = spec.ignitionDelayTime(dryingTemp) * 
               (isGrass ? ffm_settings::grassIDTReduction : 1.0);
@@ -1117,7 +1117,9 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
             dryingFactor *= std::max(0.0, 1 - duration / idt);
 
             if (iPt == initialPt && timeStep == 1 && step == 1) {
-              iPath.addPreIgnitionData( PreIgnitionData::preheating(dryingFactor, dryingTemp, duration ) );
+              iPath.addPreIgnitionData( PreIgnitionData::preheating(
+                                      phf.flame().flameLength(), phf.flame().depthIgnited(), 
+                                      distToFlame, dryingFactor, dryingTemp, duration) );
             }
           }
 
@@ -1155,28 +1157,26 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
           }
         }
 
-        if (iPt == initialPt && step == 1) {
-          iPath.addPreIgnitionData( PreIgnitionData::incident(dryingFactor, dryingTemp) );
-        }
-
         //compute temperatures at test Pt from incident flame and plant flame
-        double incidentTemp = incidentFlame.plumeTemperature((testPt - incidentFlameOrigin).norm(), weather_.airTempC());
+        double distToIncidentFlame = (testPt - incidentFlameOrigin).norm();
+        double incidentTemp = incidentFlame.plumeTemperature(distToIncidentFlame, weather_.airTempC());
         double plantTemp = plantFlame.plumeTemperature((testPt - plantFlame.origin()).norm(), weather_.airTempC());
         double maxTemp = std::max(incidentTemp, plantTemp);
         double idt = dryingFactor * spec.ignitionDelayTime(maxTemp)* 
           (isGrass ? ffm_settings::grassIDTReduction : 1.0);
       
+        if (iPt == initialPt && step == 1) {
+          iPath.addPreIgnitionData( 
+              PreIgnitionData::incident(
+                      incidentFlame.flameLength(), incidentFlame.depthIgnited(), 
+                      distToIncidentFlame, dryingFactor, incidentTemp, idt) );
+        }
+
         //if ignition does not occur for testPt then break from loop over penetration steps
         if (idt > ffm_settings::computationTimeInterval || maxTemp < spec.ignitionTemp())
           break;
 
         //if we get here ignition has occurred, so reset end pt and continue
-
-        if (iPt == initialPt && step == 1) {
-          double finalDryingFactor = std::max(0.0, 1.0 - ffm_settings::computationTimeInterval / idt); 
-          iPath.addPreIgnitionData( PreIgnitionData::ignition(finalDryingFactor, maxTemp) );
-        }
-
         ePt = testPt;
       }//end of loop over penetrations steps
     }

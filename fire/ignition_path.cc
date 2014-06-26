@@ -148,40 +148,46 @@ std::string IgnitionPath::printToString() const{
 
   bool hasPreHeatingData = false;
   bool hasIncidentData = false;
-  bool hasIgnitionData = false;
   for (int i = 0; i < preIgnitionData_.size(); i++) {
     PreIgnitionData pid = preIgnitionData_.at(i);
     switch (pid.type()) {
       case PreIgnitionData::Type::PREHEATING: hasPreHeatingData = true; break;
       case PreIgnitionData::Type::INCIDENT: hasIncidentData = true; break;
-      case PreIgnitionData::Type::IGNITION: hasIgnitionData = true; break;
     }
   }
 
   if (hasPreHeatingData) {
     str += "\n\nPreHeating\n";
-    str += "Duration\tDrying\tTemp\n";
+    str += "Length\tDepth\tDist\tTemp\tDrying\tDuration\n";
     for (int i = 0; i < preIgnitionData_.size(); i++) {
       PreIgnitionData pid = preIgnitionData_.at(i);
       if (pid.type() == PreIgnitionData::Type::PREHEATING) {
-        sprintf(s, "%.2f\t%.4f\t%.4f\n", pid.duration(), pid.dryingFactor(), pid.temperature());
+        sprintf(s, "%.2f\t%.2f\t%.2f\t%.2f\t%.4f\t%.2f\n", 
+	        pid.flameLength(),
+		pid.depthIgnited(),
+		pid.distanceToFlame(),
+		pid.temperature(),
+		pid.dryingFactor(), 
+		pid.duration());
         str += std::string(s);
       }
     }
   }
 
   if (hasIncidentData) {
-    str += "\n\nIncident and ignition\n";
-    str += "Type\tDrying\tCumDrying\tTemp\n";
-    double cumDrying = 1.0;
+    str += "\n\nIncident\n";
+    str += "Length\tDepth\tDist\tTemp\tDrying\tIDT\n";
     for (int i = 0; i < preIgnitionData_.size(); i++) {
       PreIgnitionData pid = preIgnitionData_.at(i);
       if (pid.type() != PreIgnitionData::Type::PREHEATING) {
-        str += PreIgnitionData::getTypeLabel(pid.type()) + "\t";
 
-        cumDrying *= pid.dryingFactor();
-
-        sprintf(s, "%.4f\t%.4f\t%.4f\n", pid.dryingFactor(), cumDrying, pid.temperature());
+        sprintf(s, "%.2f\t%.2f\t%.2f\t%.2f\t%.4f\t%.2f\n", 
+	        pid.flameLength(),
+		pid.depthIgnited(),
+		pid.distanceToFlame(),
+		pid.temperature(),
+		pid.dryingFactor(), 
+		pid.idt());
         str += std::string(s);
       }
     }
