@@ -33,7 +33,7 @@ std::vector<double>  ForestIgnitionRun::speciesWeightedFlameLengths(const Stratu
 								      const IgnitionPath::PathType& ptype) const {
   std::vector<double> flameLengths(ffm_settings::maxTimeSteps, 0);
   for (IgnitionPath ip : paths_) {
-    if (ip.level() != lev || ip.type() != ptype || !ip.hasSegments()) continue;
+    if (!ip.hasSegments() || ip.level() != lev || ip.type() != ptype) continue;
     double comp = ip.species().composition();
     ip.sortSegments();
     for (int i = 0; i < ip.numSegments(); ++i)
@@ -91,7 +91,7 @@ double ForestIgnitionRun::speciesWeightedIgnitionTimeStep(const Stratum::LevelTy
 							  const IgnitionPath::PathType ptype) const {
   double returnValue = 0;
   for (const IgnitionPath& ip : paths_) {
-    if (ip.level() != lev || ip.type() != ptype) continue;
+    if (!ip.hasSegments() || ip.level() != lev || ip.type() != ptype) continue;
     returnValue += ip.species().composition()*ip.startTimeStep();
   }
   return returnValue;
@@ -108,7 +108,7 @@ double ForestIgnitionRun::speciesWeightedTimeStepsIgnitionToMaxFlame(const Strat
 					     const IgnitionPath::PathType ptype) const {
   double returnValue = 0;
   for (const IgnitionPath& ip : paths_) {
-    if (ip.level() != lev || ip.type() != ptype) continue;
+    if (!ip.hasSegments() || ip.level() != lev || ip.type() != ptype) continue;
     returnValue += ip.species().composition()*ip.timeStepsIgnitionToMaxFlame();
   }
   return returnValue;
@@ -220,7 +220,7 @@ Pt ForestIgnitionRun::speciesWeightedOriginOfMaxFlame(const Stratum::LevelType& 
 						      const IgnitionPath::PathType& ptype) const {
   Pt returnValue(0,0);
   for (const IgnitionPath ip : paths_) {
-    if (ip.level() != lev || ip.type() != ptype)
+    if (!ip.hasSegments() || ip.level() != lev || ip.type() != ptype)
       continue;
     returnValue += ip.species().composition()*ip.originOfMaxSegment();
   }
