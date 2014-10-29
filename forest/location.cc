@@ -828,7 +828,7 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
       //time of the preheating flame is computed from the plant ignition sequences whereas the 
       //preheating flame itself comes from the stratum ignition sequences
       double mfl = speciesWeightedFlames.meanFlameLength();
-      preHeatingFlames.push_back(PreHeatingFlame(strat.level(),
+      PreHeatingFlame phf = PreHeatingFlame(strat.level(),
                                                  Flame(mfl,
                                                        windEffectFlameAngle(mfl,stratumWindSpeed,slope()),
                                                        speciesWeightedFlames.meanOrigin(),
@@ -837,7 +837,9 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
                                                  cumulativePreHeatingStartTime,
                                                  cumulativePreHeatingStartTime 
                                                  + speciesWeightedFlames.nonNullCount()
-                                                 *ffm_settings::computationTimeInterval));
+                                                 *ffm_settings::computationTimeInterval);
+      
+      preHeatingFlames.push_back(phf);
       //check whether largest (ie first after sorting) species weighted stratum flame is longer than
       //the largest species weighted plant flame and if so set connection. This is part of the (strange)
       //calculation from the spreadsheet to determine whether or not a stratum can ignite an upper stratum 
@@ -1087,12 +1089,24 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
       double pathAngle = maxPlantPath > maxIncidentPath ? plantFlame.angle() : incidentFlame.angle();
 
       for (auto& phf : preHeatingFlames) {
+	int i = 0;
         if (!phf.flame().isNull()) {
           Pt originPt;
           Line tmpLine(phf.flame().origin(), slope());
           if (!tmpLine.originOnLine(phf.flame().angle(), ePt, originPt))
             ; 
-          phf.flame().origin(originPt);
+
+	  // This line does not update the PreHeatingFlame's Flame field as intended. 
+	  // Instead it is modifying a copy which is then silently discarded, leaving 
+	  // the origin point at (0,0).
+	  //
+          //preHeatingFlames.at(i).flame().origin(originPt);
+
+	  // Hack fix for above problem: create a new PreHeatingFlame object - MB
+	  Flame flame = phf.flame();
+	  flame.origin(originPt);
+          preHeatingFlames.at(i) = PreHeatingFlame(phf.level(), flame, phf.startTime(), phf.endTime());
+	  i++ ;
         }
       }
       //the possible ignition distance is divided into numPenetrationSteps segments and we test each
