@@ -1088,8 +1088,8 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
       double pathLength = maxPlantPath > maxIncidentPath ? maxPlantPath : maxIncidentPath;
       double pathAngle = maxPlantPath > maxIncidentPath ? plantFlame.angle() : incidentFlame.angle();
 
+      int i = 0;
       for (auto& phf : preHeatingFlames) {
-	int i = 0;
         if (!phf.flame().isNull()) {
           Pt originPt;
           Line tmpLine(phf.flame().origin(), slope());
@@ -1106,8 +1106,8 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
 	  Flame flame = phf.flame();
 	  flame.origin(originPt);
           preHeatingFlames.at(i) = PreHeatingFlame(phf.level(), flame, phf.startTime(), phf.endTime());
-	  i++ ;
         }
+	i++ ;
       }
       //the possible ignition distance is divided into numPenetrationSteps segments and we test each
       //segment in turn for ignition
