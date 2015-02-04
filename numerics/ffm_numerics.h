@@ -12,14 +12,14 @@ namespace ffm_numerics{
     Floats will be equal if their absolute difference is 
     less than or equal to abs_epsilon
   */
-  const double abs_epsilon = 1.0E-9;
+  const double abs_epsilon = 1.0E-6; // coarser tolerance for testing; originally 1.0E-9;
 
   /*!\brief Constanf for float comparison
     
     Large floats will be equal if 
     abs(x - y) <= max(abs(x), abs(y)) * rel_epsilon
   */
-  const double rel_epsilon = 1.0E-9;
+  const double rel_epsilon = 1.0E-6; // coarser tolerance for testing; originally 1.0E-9;
 
   bool almostEq(const double&, const double&);
   bool almostZero(const double&);
@@ -27,6 +27,7 @@ namespace ffm_numerics{
   bool leq(const double&, const double&);
   bool lt(const double&, const double&);
   bool gt(const double&, const double&);
+  double clampToZero(const double& a);
 }
 
 const double PI = 4*atan(1);

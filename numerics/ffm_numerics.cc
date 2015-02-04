@@ -66,4 +66,11 @@ namespace ffm_numerics{
     return !leq(a,b);
   }
 
+  /*!\brief Clamp small values to zero
+    \param a
+    \return 0.0 if almostZero(a) is true, otherwise returns a unchanged
+  */
+  double clampToZero(const double& a) {
+    return almostZero(a) ? 0.0 : a;
+  }
 }

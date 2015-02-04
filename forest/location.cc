@@ -579,7 +579,8 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
             // there was a prior path with ignition...
             // check to see if this ignition scenario has a longer flame length than any of the previous ones. 
             // and replace stored IgnitionPath if necessary. Note we compare segment lengths
-            if (iPath.maxSegmentLength() > speciesIgnitionPath.maxSegmentLength()) speciesIgnitionPath = iPath;
+            if (ffm_numerics::gt(iPath.maxSegmentLength(), speciesIgnitionPath.maxSegmentLength())) 
+              speciesIgnitionPath = iPath;
 
           } else { 
             // no prior path with ignited segments so save this one
@@ -589,7 +590,7 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
         } else { 
           // ignition did not occur...
           // if the prior path also didn't have ignition, keep the one with the max temperature 
-          if (!speciesIgnitionPath.hasSegments() && iPath.maxPreIgnitionTemp() > speciesIgnitionPath.maxPreIgnitionTemp()) {
+          if (!speciesIgnitionPath.hasSegments() && ffm_numerics::gt(iPath.maxPreIgnitionTemp(), speciesIgnitionPath.maxPreIgnitionTemp())) {
             speciesIgnitionPath = iPath;
           }
         }
@@ -989,8 +990,6 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
                                            const double& windSpeed,
                                            const Pt& initialPt) const { 
 
-
-
   //initialise ignition path 
   IgnitionPath iPath(plantFlameRun ? IgnitionPath::PLANT_PATH : IgnitionPath::STRATUM_PATH,
                      level, spec, -99);
@@ -1082,7 +1081,7 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
 
     //if there is any more of the plant to burn then compute ignition for the next time step
     Pt ePt = iPt;
-    if (maxIncidentPath > 0 || maxPlantPath > 0) {
+    if (ffm_numerics::gt(maxIncidentPath, 0.0) || ffm_numerics::gt(maxPlantPath, 0.0)) {
       //the direction and max possible extent of the next ignition segment is determined by 
       //whichever path has the greatest length
       double pathLength = maxPlantPath > maxIncidentPath ? maxPlantPath : maxIncidentPath;
@@ -1178,7 +1177,7 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
         double maxTemp = std::max(incidentTemp, plantTemp);
         double idt = dryingFactor * spec.ignitionDelayTime(maxTemp)* 
           (isGrass ? ffm_settings::grassIDTReduction : 1.0);
-      
+
         if (iPt == initialPt && step == 1) {
           iPath.addPreIgnitionData( 
               PreIgnitionData::incident(
