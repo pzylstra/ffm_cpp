@@ -678,34 +678,34 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
       //if strat is canopy then compute distance out along stratum for which bottom edge of canopy is heated
       double canopyHeatingDistance = 0;
       if (strat.level() == Stratum::CANOPY) {
-        double originOffsetX = 0;
         //line to represent the bottom of the canopy
-        Line canopyLine(Pt(0,strat.avBottom()), slope());
+        double canopyBottom = strat.avBottom();
+        Line canopyLine(Pt(0.0, canopyBottom), slope());
 
-        //loop over the all the flame series. NOTE: we don't need to start with the surface, and the 
-        //flameseries are in order bottom stratum to top
+        // loop over all the flame series which are ordered from bottom stratum upwards
         for (std::vector<FlameSeries>::const_iterator it = allSpeciesWeightedStratumFlameSeries.begin();
              it != allSpeciesWeightedStratumFlameSeries.end();
              ++it) {
           Flame f = (*it).flames().front(); //first and largest flame because flameseries were sorted
           Ray plume = f.plume();
 
-          //if the plume is hot enough at the point where it intersects bottom of the canopy then 
-          //update the canopyHeatingDistance
-          Pt intersectionPt;
-          plume.intersects(canopyLine, intersectionPt);
-          if (f.plumeTemperature(intersectionPt, weather().airTempC()) >= ffm_settings::minTempForCanopyHeating)
-            canopyHeatingDistance = std::max(canopyHeatingDistance, intersectionPt.x() + originOffsetX); 
-          
-          //now update the offset according to where plume intersects the next stratum
-          //NOTE that if next stratum is the canopy then intersectionPt was found above
-          if (it != allSpeciesWeightedStratumFlameSeries.end() - 1) //the next stratum is not the canopy
-            plume.intersects(Line(Pt(0,forest_.stratum((*(it + 1)).level()).avBottom()), slope()), 
-                             intersectionPt);
+          // If the plume is hot enough at the point where it intersects bottom of the canopy 
+          // then update the canopyHeatingDistance. 
+          Pt pt;
+          plume.intersects(canopyLine, pt);
 
-          originOffsetX += intersectionPt.x();
+          if (ffm_numerics::lt(pt.y(), plume.start().y())) {
+            // Assuming that flame angles are always above the horizontal, 
+            // an intersection point Y ordinate less than the flame origin
+            // Y ordinate indicates that the origin is above the bottom edge
+            // of the canopy. In this case just use the flame origin as the
+            // intersection point.
+            pt = plume.start();
+          }
+
+          if (f.plumeTemperature(pt, weather().airTempC()) >= ffm_settings::minTempForCanopyHeating)
+            canopyHeatingDistance = std::max(canopyHeatingDistance, pt.x()); 
         }
-        canopyHeatingDistance -= originOffsetX;   
       } 
 
       //reset vectors that hold species weighted flame information
@@ -1095,18 +1095,18 @@ IgnitionPath Location::computeIgnitionPath(const std::vector<Flame>& incidentFla
           if (!tmpLine.originOnLine(phf.flame().angle(), ePt, originPt))
             ; 
 
-	  // This line does not update the PreHeatingFlame's Flame field as intended. 
-	  // Instead it is modifying a copy which is then silently discarded, leaving 
-	  // the origin point at (0,0).
-	  //
+          // This line does not update the PreHeatingFlame's Flame field as intended. 
+          // Instead it is modifying a copy which is then silently discarded, leaving 
+          // the origin point at (0,0).
+          //
           //preHeatingFlames.at(i).flame().origin(originPt);
 
-	  // Hack fix for above problem: create a new PreHeatingFlame object - MB
-	  Flame flame = phf.flame();
-	  flame.origin(originPt);
+          // Hack fix for above problem: create a new PreHeatingFlame object - MB
+          Flame flame = phf.flame();
+          flame.origin(originPt);
           preHeatingFlames.at(i) = PreHeatingFlame(phf.level(), flame, phf.startTime(), phf.endTime());
         }
-	i++ ;
+        i++ ;
       }
       //the possible ignition distance is divided into numPenetrationSteps segments and we test each
       //segment in turn for ignition
