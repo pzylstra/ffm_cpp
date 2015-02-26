@@ -617,7 +617,7 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
             //if flame from any segment burns out past the edge of the plant then set connection to true
             if (!connection && 
                 sg.start().x() + 
-                tmpFlameLength*cos(windEffectFlameAngle(tmpFlameLength, stratumWindSpeed, slope()) > 0.5*spec.width())
+                tmpFlameLength*cos(windEffectFlameAngle(tmpFlameLength, stratumWindSpeed, slope())) > 0.5*spec.width()
                )
               connection = true;
             //add (species weighted) flame info to vector of flame lengths
