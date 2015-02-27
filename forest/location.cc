@@ -498,9 +498,10 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
         //if there is a connection then add the winds
         if (find(flameConnections.begin(), flameConnections.end(), s.level()) < flameConnections.end() ||
             forest_.verticalAssociation(s.level(),strat.level())) {
-          flameWeightedWind += (*iter).cappedMaxFlameLength() * 
-            forest_.windProfile(incidentWindSpeed_, s.avMidHt(), includeCanopy);
-          flameSum += (*iter).cappedMaxFlameLength();
+          double flen = (*iter).cappedMaxFlameLength();
+          double w = forest_.windProfile(incidentWindSpeed_, s.avMidHt(), includeCanopy);
+          flameWeightedWind += flen * w;
+          flameSum += flen;
         }
       }
       flameWeightedWind = flameSum > 0 ? flameWeightedWind / flameSum : 0; 
