@@ -781,11 +781,11 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
 
           int i = 0;
           for (const Seg& sg : speciesIgnitionPath.ignitedSegments()){
-            double flameLen = spec.flameLength(sg.length());
+            double flameLen = bigSpecies.flameLength(sg.length());
             speciesWeightedFlameLengths.at(i) += comp*flameLen;
             speciesWeightedFlameDepths.at(i) += comp*sg.length();
             speciesAndFlameWeightedFlameTemps.at(i) += comp*flameLen*
-              (spec.isGrass() && strat.level() == Stratum::NEAR_SURFACE ? 
+              (bigSpecies.isGrass() && strat.level() == Stratum::NEAR_SURFACE ? 
                ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
             speciesWeightedFlameOrigins.at(i) += comp*sg.start();
             ++i;
@@ -878,9 +878,10 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
       if (find(flameConnections.begin(), flameConnections.end(), s.level()) < flameConnections.end() ||
           forest_.verticalAssociation(s.level(),Stratum::CANOPY) ||
           s.level() == Stratum::CANOPY) {
-        flameWeightedWind += (*i).cappedMaxFlameLength() * 
-          forest_.windProfile(incidentWindSpeed_, s.avMidHt(), includeCanopy);
-        flameSum += (*i).cappedMaxFlameLength();
+        double flen = (*i).cappedMaxFlameLength();
+        double w = forest_.windProfile(incidentWindSpeed_, s.avMidHt(), includeCanopy);
+        flameWeightedWind += flen * w;
+        flameSum += flen;
       }
     }
     flameWeightedWind = flameSum > 0 ? flameWeightedWind / flameSum : 0; 
