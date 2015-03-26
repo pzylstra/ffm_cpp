@@ -1,6 +1,9 @@
 #ifndef FOREST_IGNITION_RUN_H
 #define FOREST_IGNITION_RUN_H
 
+#include <vector>
+#include <map>
+
 #include "stratum.h"
 #include "forest.h"
 #include "flame.h"
@@ -28,6 +31,12 @@ public:
   */
   enum RunType{UNKNOWN_RUN_TYPE, WITH_CANOPY, WITHOUT_CANOPY};
 
+  /*
+   * String used as key to identify weighted average flame lengths in map returned
+   * by speciesWeightedFlameLengths and laterallyMergedSpeciesWeightedPlantFlameLengths.
+   */
+  const static std::string KEY_WEIGHTED_AVERAGE;
+
   //constructors
 
   ForestIgnitionRun();
@@ -48,10 +57,13 @@ public:
 
   //other methods
   bool spreadsInStratum(const Stratum::LevelType& level) const;
-  std::vector<double> speciesWeightedFlameLengths(const Stratum::LevelType& level, 
+  
+  std::map<std::string, std::vector<double>> speciesWeightedFlameLengths(const Stratum::LevelType& level, 
 						  const IgnitionPath::PathType& ptype) const;
-  std::vector<double> laterallyMergedSpeciesWeightedPlantFlameLengths(const Stratum::LevelType& level, 
+  
+  std::map<std::string, std::vector<double>> laterallyMergedSpeciesWeightedPlantFlameLengths(const Stratum::LevelType& level, 
 								 const double& firelineLength) const;
+
   std::vector<IgnitionPath>::const_iterator beginPaths() const;
   std::vector<IgnitionPath>::const_iterator endPaths() const;
   std::vector<Flame>::const_iterator beginCombinedFlames() const;

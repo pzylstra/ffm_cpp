@@ -1,10 +1,13 @@
-#include <vector>
 #include <algorithm>
 
 #include "forest_ignition_run.h"
 #include "ffm_util.h"
 #include "results.h"
 
+// Initialize static key string used with map returned by speciesWeightedFlameLengths
+// and laterallyMergedSpeciesWeightedPlantFlameLengths.
+//
+const std::string ForestIgnitionRun::KEY_WEIGHTED_AVERAGE("WEIGHTED_AVERAGE");
 
 
 /*!\brief Determines whether the fire spreads in a particular Stratum
@@ -27,19 +30,38 @@ bool ForestIgnitionRun::spreadsInStratum(const Stratum::LevelType& lev) const {
   \param ptype
   \return Composition-weighted flame lengths for all species with Stratum::LevelType equal to lev 
   and IgnitionPath::PathType equal to ptype. Flame lengths are sorted in decreasing order before 
-  weighted sum is taken.
+  weighted sum is taken. The results are returned as a map with keys for species names (individual
+  species flame lengths used for averaging) and KEY_WEIGHTED_AVERAGE (weighted average flame
+  lengths).
 */
-std::vector<double>  ForestIgnitionRun::speciesWeightedFlameLengths(const Stratum::LevelType& lev, 
-								      const IgnitionPath::PathType& ptype) const {
-  std::vector<double> flameLengths(ffm_settings::maxTimeSteps, 0);
+std::map<std::string, std::vector<double>>  ForestIgnitionRun::speciesWeightedFlameLengths(
+    const Stratum::LevelType& lev, 
+    const IgnitionPath::PathType& ptype) const {
+
+  std::map<std::string, std::vector<double>> res;
+  
+  std::vector<double> weightedLengths(ffm_settings::maxTimeSteps, 0);
+
   for (IgnitionPath ip : paths_) {
     if (!ip.hasSegments() || ip.level() != lev || ip.type() != ptype) continue;
+    
     double comp = ip.species().composition();
+    double flen;
+    std::vector<double> spLengths(ip.numSegments(), 0);
+
     ip.sortSegments();
-    for (int i = 0; i < ip.numSegments(); ++i)
-      flameLengths.at(i) += comp*ip.flameLength(i);
+    for (int i = 0; i < ip.numSegments(); ++i) {
+      flen = ip.flameLength(i);
+      spLengths.at(i) = flen;
+      weightedLengths.at(i) += comp * flen;
+    }
+
+    res.insert( std::pair<std::string, std::vector<double>>(ip.species().name(), spLengths) );
   }
-  return flameLengths;
+
+  res.insert( std::pair<std::string, std::vector<double>>(KEY_WEIGHTED_AVERAGE, weightedLengths) );
+  
+  return res;
 }
 
 
@@ -54,15 +76,34 @@ std::vector<double>  ForestIgnitionRun::speciesWeightedFlameLengths(const Stratu
     sorts these vectors in order of decreasing size, and returns their 
     composition-weighted component-wise sum.
   */
-std::vector<double>  ForestIgnitionRun::laterallyMergedSpeciesWeightedPlantFlameLengths(const Stratum::LevelType& lev, 
-										     const double& firelineLen) const {
-  std::vector<double> flameLengths = speciesWeightedFlameLengths(lev, IgnitionPath::PLANT_PATH);
+std::map<std::string, std::vector<double>>  ForestIgnitionRun::laterallyMergedSpeciesWeightedPlantFlameLengths(
+    const Stratum::LevelType& lev, 
+    const double& firelineLen) const {
+
+
+  // Get basic species weighted flame lengths.
+  // Returned map contains vector of weighted lengths plus N
+  // vectors of contributing flame lengths for the N species
+  // in the stratum.
+  std::map<std::string, std::vector<double>> flameLengths = speciesWeightedFlameLengths(lev, IgnitionPath::PLANT_PATH);
+
   Stratum strat = forest_.stratum(lev);
   double w = forest_.stratum(lev).avWidth();
   double sep = forest_.stratum(lev).modelPlantSep();
-  transform(flameLengths.begin(), flameLengths.end(), flameLengths.begin(), 
-	    [firelineLen, w, sep](const double& fl) {
-	      return fl > 0? laterallyMergedFlameLength(fl, firelineLen, w, sep) : 0;});
+
+  // Do lateral merging of both the weighted average flame lengths, and the
+  // the individual species flame lengths. Note we use the stratum plant
+  // separation parameter for both average and species lengths here.
+  for (std::map<std::string, std::vector<double>>::iterator it = flameLengths.begin();
+      it != flameLengths.end(); ++it) {
+
+    std::vector<double>& flens = it->second;
+
+    transform(flens.begin(), flens.end(), flens.begin(), 
+        [firelineLen, w, sep](const double& fl) {
+        return fl > 0? laterallyMergedFlameLength(fl, firelineLen, w, sep) : 0;});
+  }
+
   return flameLengths;
 }
 
