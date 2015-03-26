@@ -96,9 +96,10 @@ Results Location::results() const {
                                                                                      firelineLength_));
         stratumFlameLength = ffm_util::cappedMax(fir2.speciesWeightedFlameLengths(strat.level(), 
                                                                         IgnitionPath::STRATUM_PATH));
-        if(stratumFlameLength > flameLength)
+        if(stratumFlameLength > flameLength) {
           flameLength = stratumFlameLength;
-        flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
+          flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
+        }
       }
       if (plantFlameLength > flameLength){
         flameLength = plantFlameLength;
