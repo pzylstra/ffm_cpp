@@ -15,10 +15,15 @@ inline Results::Results () {}
   */
 inline double Results::ros() const {return ros_;}
 
-  /*!\brief Overall flame height
-    \return The overall flame height (m)
+  /*!\brief Overall flame tip height
+    \return The overall flame tip height (m)
   */
-inline double Results::flameHeight() const {return flameHeight_;}
+inline double Results::flameTipHeight() const {return flameTipHeight_;}
+
+  /*!\brief Overall flame origin height
+    \return The overall flame origin height (m)
+  */
+inline double Results::flameOriginHeight() const {return flameOriginHeight_;}
 
   /*!\brief Overall flame length
     \return The overall flame length (m)
@@ -129,12 +134,19 @@ inline bool Results::runTwoExists() const {return runs_.size() == 2;}
   */
 inline void Results::ros(const double& r) {ros_ = r;}
 
-  /*!\brief Sets overall flame height
+  /*!\brief Sets overall flame tip height
     \param fh (double, m)
 
-    Sets overall flame height to fh
+    Sets overall flame tip height to fh
   */
-inline void Results::flameHeight(const double& fh) {flameHeight_ = fh;}
+inline void Results::flameTipHeight(const double& fh) {flameTipHeight_ = fh;}
+
+  /*!\brief Sets overall flame origin height
+    \param fh (double, m)
+
+    Sets overall flame origin height to fh
+  */
+inline void Results::flameOriginHeight(const double& fh) {flameOriginHeight_ = fh;}
 
   /*!\brief Sets overall flame length
     \param fl (double, m)
@@ -299,11 +311,20 @@ inline std::string Results::printROS() const {
 }
 
 /*!\brief Printing
-  \return A formatted string describing overall flame height (m)
+  \return A formatted string describing overall flame tip height (m)
 */
-inline std::string Results::printFlameHeight() const {
+inline std::string Results::printFlameTipHeight() const {
   char s[30];
-  sprintf(s, "%5.1f", flameHeight_);
+  sprintf(s, "%5.1f", flameTipHeight_);
+  return std::string(s);
+}
+
+/*!\brief Printing
+  \return A formatted string describing overall flame origin height (m)
+*/
+inline std::string Results::printFlameOriginHeight() const {
+  char s[30];
+  sprintf(s, "%5.1f", flameOriginHeight_);
   return std::string(s);
 }
 
@@ -502,20 +523,59 @@ inline std::string Results::printToString(const OutputLevelType& outputLevel) co
   str += "\n";
 
 
-  name = "Flame height (m)                  ";
+  name = "Flame tip height (m)              ";
   str += name;
   str += overall;
-  str += printFlameHeight() + "\n";
+  str += printFlameTipHeight() + "\n";
   if (outputLevel >= DETAILED) {
     blanks = std::string(name.size(), ' ');
     str += blanks + surface + printSurfaceFlameHeight() + "\n";
     for (const StratumResults& sr : strataResults_) {
       str += blanks + levelStringMap.at(sr.level()) + ":";
       str += std::string(surface.size() - levelStringMap.at(sr.level()).size() - 1,' ');
-      str += sr.printFlameHeight() + "\n";
+      str += sr.printFlameTipHeight() + "\n";
     }
   }
   str += "\n";
+
+  name = "Flame origin height (m)           ";
+  str += name;
+  str += overall;
+  str += printFlameOriginHeight() + "\n";
+  if (outputLevel >= DETAILED) {
+    blanks = std::string(name.size(), ' ');
+    str += blanks + surface + "  0.0" + "\n";
+    for (const StratumResults& sr : strataResults_) {
+      str += blanks + levelStringMap.at(sr.level()) + ":";
+      str += std::string(surface.size() - levelStringMap.at(sr.level()).size() - 1,' ');
+      str += sr.printFlameOriginHeight() + "\n";
+    }
+  }
+  str += "\n";
+
+  if (outputLevel >= DETAILED) {
+    name = "Species flame tip heights (m)     ";
+    str += name;
+    blanks = std::string(name.size(), ' ');
+    char buf[10];
+
+    bool first = true;
+    for (const StratumResults& sr : strataResults_) {
+      const std::map<std::string, double>& spHts = sr.speciesFlameTipHeights();
+      for (std::map<std::string, double>::const_iterator it = spHts.begin(); it != spHts.end(); ++it) {
+        if (!first) str += blanks;
+       
+        str += levelStringMap.at(sr.level()) + ":" ;
+        str += std::string(surface.size() - levelStringMap.at(sr.level()).size() - 1,' ');
+
+        sprintf(buf, "%5.1f", it->second);
+        str += std::string(buf) + " " + it->first + "\n";
+
+        first = false;
+      }
+    }
+    str += "\n";
+  }
 
   name = "Rate of spread (km/h)             ";
   str += name;

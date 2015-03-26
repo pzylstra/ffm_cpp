@@ -698,10 +698,10 @@ std::string printMonteCarloResults(const Results& res) {
   for (const auto& sr : res.strataResults())
     str += sepStr + sr.printFlameLength();
 
-  str += sepStr + res.printFlameHeight();
+  str += sepStr + res.printFlameTipHeight();
   str += sepStr + res.printSurfaceFlameHeight();
   for (const auto& sr : res.strataResults())
-    str += sepStr + sr.printFlameHeight();
+    str += sepStr + sr.printFlameTipHeight();
 
   str += sepStr + res.printFlameAngle();
   str += sepStr + res.printSurfaceFlameAngle();

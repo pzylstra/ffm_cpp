@@ -15,25 +15,6 @@ inline StratumResults::StratumResults() {}
 */
 inline StratumResults::StratumResults(const Stratum::LevelType& lev) : level_(lev) {}
 
-/*!\brief Standard constructor
-  \param lev The level to which the results refer
-  \param ros Rate of spread (m/s)
-  \param flameHeight (m)
-  \param flameLength (m)
-  \param flameAngle (radians)
-  \param proportionBurnt
-*/
-inline StratumResults::StratumResults(const Stratum::LevelType& lev, 
-				      const double& ros, 
-				      const double& flameHeight, 
-				      const double& flameLength, 
-				      const double& flameAngle,
-				      const double& proportionBurnt) : level_(lev), ros_(ros),
-								 flameHeight_(flameHeight),
-								 flameLength_(flameLength),
-								 flameAngle_(flameAngle),
-								 proportionBurnt_(proportionBurnt) {}
-
 //accessors
 
 /*!\brief The level of the Stratum to which the results apply
@@ -46,10 +27,13 @@ inline Stratum::LevelType StratumResults::level() const {return level_;}
 */
 inline double StratumResults::ros() const {return ros_;}
 
-/*!\brief Flame height
-  \return Flame height of the Stratum fire (m)
+/*!\brief Flame tip height
 */
-inline double StratumResults::flameHeight() const {return flameHeight_;}
+inline double StratumResults::flameTipHeight() const {return flameTipHeight_;}
+
+/*!\brief Flame origin height
+*/
+inline double StratumResults::flameOriginHeight() const {return flameOriginHeight_;}
 
 /*!\brief Flame length
   \return Flame length of the Stratum fire (m)
@@ -66,6 +50,9 @@ inline double StratumResults::flameAngle() const {return flameAngle_;}
 */
 inline double StratumResults::proportionBurnt() const {return proportionBurnt_;}
 
+inline std::map<std::string, double> StratumResults::speciesFlameTipHeights() const { return speciesFlameTipHeights_; }
+
+
 //mutators
 
 /*!\brief Set Stratum fire rate of spread
@@ -74,10 +61,9 @@ inline double StratumResults::proportionBurnt() const {return proportionBurnt_;}
 inline void StratumResults::ros(const double& ros) {ros_ = ros;}
 
 
-/*!\brief Set Stratum fire flame height
-  \param flame_height (m)
-*/
-inline void StratumResults::flameHeight(const double& flame_height) {flameHeight_ = flame_height;}
+inline void StratumResults::flameTipHeight(const double& flame_height) {flameTipHeight_ = flame_height;}
+
+inline void StratumResults::flameOriginHeight(const double& flame_height) {flameOriginHeight_ = flame_height;}
 
 /*!\brief Set Stratum fire flame length
   \param flame_length (m)
@@ -94,6 +80,8 @@ inline void StratumResults::flameAngle(const double& flame_angle) {flameAngle_ =
 */
 inline void StratumResults::proportionBurnt(const double& proportion_burnt) {proportionBurnt_ = proportion_burnt;}
 
+inline void StratumResults::addSpeciesFlameTipHeight(const std::string& name, const double& ht) { speciesFlameTipHeights_[name] = ht; }
+
 //printing and conversion
 
 /*!\brief Printing
@@ -106,11 +94,20 @@ inline std::string StratumResults::printROS() const {
 }
 
 /*!\brief Printing
-  \return Formatted string describing flame height in metres
+  \return Formatted string describing flame tip height in metres
 */
-inline std::string StratumResults::printFlameHeight() const {
+inline std::string StratumResults::printFlameTipHeight() const {
   char s[30];
-  sprintf(s, "%5.1f", flameHeight_);
+  sprintf(s, "%5.1f", flameTipHeight_);
+  return std::string(s);
+}
+
+/*!\brief Printing
+  \return Formatted string describing flame origin height in metres
+*/
+inline std::string StratumResults::printFlameOriginHeight() const {
+  char s[30];
+  sprintf(s, "%5.1f", flameOriginHeight_);
   return std::string(s);
 }
 

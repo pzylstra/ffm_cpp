@@ -26,7 +26,8 @@ public:
   //accessors
 
   double ros() const;
-  double flameHeight() const;
+  double flameTipHeight() const;
+  double flameOriginHeight() const;
   double flameLength() const;
   double flameAngle() const;
   double flameDepth() const;
@@ -49,7 +50,8 @@ public:
   //mutators
 
   void ros(const double& rateOfSpread);
-  void flameHeight(const double& flameHt);
+  void flameTipHeight(const double& flameHt);
+  void flameOriginHeight(const double& flameHt);
   void flameLength(const double& flameLen);
   void flameAngle(const double& flameAng);
   void surfaceROS(const double& rateOfSpread);
@@ -76,7 +78,8 @@ public:
 
   //printing functions
   std::string printROS() const;
-  std::string printFlameHeight() const;
+  std::string printFlameTipHeight() const;
+  std::string printFlameOriginHeight() const;
   std::string printFlameLength() const;
   std::string printFlameAngle() const;
   std::string printFlameDepth() const;
@@ -100,7 +103,8 @@ private:
 
   //basic outputs
   double ros_ = 0;
-  double flameHeight_ = 0;
+  double flameTipHeight_ = 0;
+  double flameOriginHeight_ = 0;
   double flameLength_ = 0;
   double flameAngle_ = 0;
 
