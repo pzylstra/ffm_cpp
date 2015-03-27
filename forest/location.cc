@@ -107,44 +107,54 @@ Results Location::results() const {
         fir.speciesWeightedFlameLengths(strat.level(), IgnitionPath::STRATUM_PATH);
 
       double plantFlameLength = ffm_util::cappedMax( plantFlameLengths.at( ForestIgnitionRun::KEY_WEIGHTED_AVERAGE ) );
+      double stratumFlameLength = 0.0;
 
-      double stratumFlameLength = ffm_util::cappedMax( stratumFlameLengths.at( ForestIgnitionRun::KEY_WEIGHTED_AVERAGE ) );
+      if (ffm_numerics::gtZero(plantFlameLength)) {
+        stratumFlameLength = ffm_util::cappedMax( stratumFlameLengths.at( ForestIgnitionRun::KEY_WEIGHTED_AVERAGE ) );
 
-      if (plantFlameLength > stratumFlameLength){
-        flameLength = plantFlameLength;
-        flameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
+        if (plantFlameLength > stratumFlameLength){
+          flameLength = plantFlameLength;
+          flameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
+          selectedFlameLengths = plantFlameLengths;
+
+        } else {
+          flameLength = stratumFlameLength;
+          flameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
+          selectedFlameLengths = stratumFlameLengths;
+        }
+      } else { // no plant flames
+        flameLength = 0;
+        flameOrigin = Pt(0, 0);
         selectedFlameLengths = plantFlameLengths;
-
-      } else {
-        flameLength = stratumFlameLength;
-        flameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
-        selectedFlameLengths = stratumFlameLengths;
       }
 
     } else { //the canopy
       std::map<std::string, std::vector<double>> plantFlameLengths = 
         fir1.laterallyMergedSpeciesWeightedPlantFlameLengths(strat.level(), firelineLength_);
 
-      dumpFlameLengths(plantFlameLengths, "Canopy: plant flames run 1");
-      
       std::map<std::string, std::vector<double>> stratumFlameLengths = 
         fir1.speciesWeightedFlameLengths(strat.level(), IgnitionPath::STRATUM_PATH);
 
-      dumpFlameLengths(stratumFlameLengths, "Canopy: stratum flames run 1");
-
       double plantFlameLength = ffm_util::cappedMax( plantFlameLengths.at( ForestIgnitionRun::KEY_WEIGHTED_AVERAGE ) );
+      double stratumFlameLength = 0.0;
 
-      double stratumFlameLength = ffm_util::cappedMax( stratumFlameLengths.at( ForestIgnitionRun::KEY_WEIGHTED_AVERAGE ) );
+      if (ffm_numerics::gtZero(plantFlameLength)) {
+        stratumFlameLength = ffm_util::cappedMax( stratumFlameLengths.at( ForestIgnitionRun::KEY_WEIGHTED_AVERAGE ) );
 
-      if (plantFlameLength > stratumFlameLength){
-        flameLength = plantFlameLength;
-        flameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
-        selectedFlameLengths = plantFlameLengths;
+        if (plantFlameLength > stratumFlameLength){
+          flameLength = plantFlameLength;
+          flameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
+          selectedFlameLengths = plantFlameLengths;
 
+        } else {
+          flameLength = stratumFlameLength;
+          flameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
+          selectedFlameLengths = stratumFlameLengths;
+        }
       } else {
-        flameLength = stratumFlameLength;
-        flameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
-        selectedFlameLengths = stratumFlameLengths;
+        flameLength = 0.0;
+        flameOrigin = Pt(0, 0);
+        selectedFlameLengths = plantFlameLengths;
       }
       
       if (runTwoExists) {
@@ -156,22 +166,20 @@ Results Location::results() const {
 
         plantFlameLength = ffm_util::cappedMax( plantFlameLengths.at( ForestIgnitionRun::KEY_WEIGHTED_AVERAGE ) );
 
-        dumpFlameLengths(plantFlameLengths, "Canopy: plant flames run 2");
+        if (ffm_numerics::gtZero(plantFlameLength)) {
+          stratumFlameLength = ffm_util::cappedMax( stratumFlameLengths.at( ForestIgnitionRun::KEY_WEIGHTED_AVERAGE ) );
 
-        stratumFlameLength = ffm_util::cappedMax( stratumFlameLengths.at( ForestIgnitionRun::KEY_WEIGHTED_AVERAGE ) );
+          if(stratumFlameLength > flameLength) {
+            flameLength = stratumFlameLength;
+            flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
+            selectedFlameLengths = stratumFlameLengths;
+          }
 
-        dumpFlameLengths(stratumFlameLengths, "Canopy: stratum flames run 2");
-
-        if(stratumFlameLength > flameLength) {
-          flameLength = stratumFlameLength;
-          flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
-          selectedFlameLengths = stratumFlameLengths;
-        }
-
-        if (plantFlameLength > flameLength){
-          flameLength = plantFlameLength;
-          flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
-          selectedFlameLengths = plantFlameLengths;
+          if (plantFlameLength > flameLength){
+            flameLength = plantFlameLength;
+            flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
+            selectedFlameLengths = plantFlameLengths;
+          } 
         } 
       }
     }
@@ -208,19 +216,19 @@ Results Location::results() const {
     stratResults.flameOriginHeight(flameOrigin.y());
 
     // Representative flame heights for contributing species flames
-    for (std::map<std::string, std::vector<double>>::iterator it = selectedFlameLengths.begin();
-        it != selectedFlameLengths.end(); ++it) {
-    
-      std::string name = it->first;
-      if (name != ForestIgnitionRun::KEY_WEIGHTED_AVERAGE) {
-        double maxLen = it->second.at(0);
-        if (maxLen > 0) {  // should always be true, but just in case
-          ht = flameOrigin.y() + maxLen * sin(flameAng) - 
-            (flameOrigin.x() + maxLen * cos(flameAng)) * tan(slope());
-
-          stratResults.addSpeciesFlameTipHeight(name, ht);
-        }
+    for (const Species& spec : strat.allSpecies()) {
+      std::map<std::string, std::vector<double>>::iterator it = selectedFlameLengths.find(spec.name());
+      if (it != selectedFlameLengths.end()) {  // ie. species has an entry
+        double maxLen = ffm_util::cappedMax( it->second );  
+        
+        ht = flameOrigin.y() + maxLen * sin(flameAng) - 
+          (flameOrigin.x() + maxLen * cos(flameAng)) * tan(slope());
       }
+      else {  // no entry for species - must not even have pre-ignition data
+        ht = 0.0;
+      }
+
+      stratResults.addSpeciesFlameTipHeight(spec.name(), ht);
     }
     
     //*********** stratum rate of spread ************************

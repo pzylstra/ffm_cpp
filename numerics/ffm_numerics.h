@@ -28,6 +28,7 @@ namespace ffm_numerics{
   bool lt(const double&, const double&);
   bool gt(const double&, const double&);
   double clampToZero(const double& a);
+  bool gtZero(const double&);
 }
 
 const double PI = 4*atan(1);

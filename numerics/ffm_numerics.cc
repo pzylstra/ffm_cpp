@@ -73,4 +73,11 @@ namespace ffm_numerics{
   double clampToZero(const double& a) {
     return almostZero(a) ? 0.0 : a;
   }
+
+  /*
+   * Tests if a value is greater than zero.
+   */
+  bool gtZero(const double& a) {
+    return gt(a, 0.0);
+  }
 }

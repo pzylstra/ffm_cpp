@@ -43,20 +43,25 @@ std::map<std::string, std::vector<double>>  ForestIgnitionRun::speciesWeightedFl
   std::vector<double> weightedLengths(ffm_settings::maxTimeSteps, 0);
 
   for (IgnitionPath ip : paths_) {
-    if (!ip.hasSegments() || ip.level() != lev || ip.type() != ptype) continue;
-    
-    double comp = ip.species().composition();
-    double flen;
-    std::vector<double> spLengths(ip.numSegments(), 0);
+    if (ip.level() == lev && ip.type() == ptype) {
+      std::vector<double> spLengths;
 
-    ip.sortSegments();
-    for (int i = 0; i < ip.numSegments(); ++i) {
-      flen = ip.flameLength(i);
-      spLengths.at(i) = flen;
-      weightedLengths.at(i) += comp * flen;
+      if (ip.hasSegments()) {
+        double comp = ip.species().composition();
+        double flen;
+        ip.sortSegments();
+        for (int i = 0; i < ip.numSegments(); ++i) {
+          flen = ip.flameLength(i);
+          spLengths.push_back( flen );
+          weightedLengths.at(i) += comp * flen;
+        }
+      } else {
+        // no ignition - but we still want to record a zero height for the species
+        spLengths.push_back( 0.0 );
+      }
+
+      res.insert( std::pair<std::string, std::vector<double>>(ip.species().name(), spLengths) );
     }
-
-    res.insert( std::pair<std::string, std::vector<double>>(ip.species().name(), spLengths) );
   }
 
   res.insert( std::pair<std::string, std::vector<double>>(KEY_WEIGHTED_AVERAGE, weightedLengths) );
