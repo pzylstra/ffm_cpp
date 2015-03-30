@@ -65,6 +65,7 @@ public:
   double maxHeightBurnt(const double& slope) const; 
   double maxFlameLength() const;
   double maxX() const;
+  double maxY() const;
   double maxHorizontalRun() const;
   double timeToIgnition() const;  //seconds
   int timeStepsIgnitionToMaxFlame() const;  

@@ -204,6 +204,17 @@ inline double IgnitionPath::maxX() const {
   return std::max((*i).start().x(), (*i).end().x());
 }
 
+/*!\brief Maximum y-coordinate
+  \return The maximum y-coordinate of any part of any ignited segment.
+*/
+inline double IgnitionPath::maxY() const {
+  if (!hasSegments()) return 0;
+  auto i = max_element(ignitedSegments_.begin(), ignitedSegments_.end(), 
+                       [](Seg s1, Seg s2){return std::max(s1.start().y(),s1.end().y()) < 
+                                          std::max(s2.start().y(), s2.end().y());});
+  return std::max((*i).start().y(), (*i).end().y());
+}
+
 /*!\brief Maximum horizontal run
   \return The maximum distance to the right of the left-hand edge of the 
   species crown that is achieved by any part of any ignited segment.

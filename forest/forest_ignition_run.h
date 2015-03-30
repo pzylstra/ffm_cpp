@@ -63,6 +63,8 @@ public:
   
   std::map<std::string, std::vector<double>> laterallyMergedSpeciesWeightedPlantFlameLengths(const Stratum::LevelType& level, 
 								 const double& firelineLength) const;
+  
+  double highestFlameOriginY(const Stratum::LevelType& level, const IgnitionPath::PathType& ptype) const;
 
   std::vector<IgnitionPath>::const_iterator beginPaths() const;
   std::vector<IgnitionPath>::const_iterator endPaths() const;

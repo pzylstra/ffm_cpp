@@ -98,7 +98,7 @@ inline std::string StratumResults::printROS() const {
 */
 inline std::string StratumResults::printFlameTipHeight() const {
   char s[30];
-  sprintf(s, "%5.1f", flameTipHeight_);
+  sprintf(s, "%6.2f", flameTipHeight_);
   return std::string(s);
 }
 
@@ -107,7 +107,7 @@ inline std::string StratumResults::printFlameTipHeight() const {
 */
 inline std::string StratumResults::printFlameOriginHeight() const {
   char s[30];
-  sprintf(s, "%5.1f", flameOriginHeight_);
+  sprintf(s, "%6.2f", flameOriginHeight_);
   return std::string(s);
 }
 
@@ -116,7 +116,7 @@ inline std::string StratumResults::printFlameOriginHeight() const {
 */
 inline std::string StratumResults::printFlameLength() const {
   char s[30];
-  sprintf(s, "%5.1f", flameLength_);
+  sprintf(s, "%6.2f", flameLength_);
   return std::string(s);
 }
 
@@ -125,7 +125,7 @@ inline std::string StratumResults::printFlameLength() const {
 */
 inline std::string StratumResults::printFlameAngle() const {
   char s[30];
-  sprintf(s, "%5.1f", flameAngle_*180/PI);
+  sprintf(s, "%6.2f", flameAngle_*180/PI);
   return std::string(s);
 }
 

@@ -69,6 +69,24 @@ std::map<std::string, std::vector<double>>  ForestIgnitionRun::speciesWeightedFl
   return res;
 }
 
+/*
+ * Returns the height of the highest flame origin (regardless of flame length) for the given
+ * stratum level and ignition path type. This is the maximum end Y ordinate of the ignited
+ * segments.
+ *
+ * Warning: if there was no ignition for the level and path type, 0 is returned.
+ */
+double ForestIgnitionRun::highestFlameOriginY(const Stratum::LevelType& level, const IgnitionPath::PathType& ptype) const {
+  double highest = 0;
+
+  for (IgnitionPath ip : paths_) {
+    if (ip.level() == level && ip.type() == ptype) {
+      highest = std::max(highest, ip.maxY());
+    }
+  }
+
+  return highest;
+}
 
   /*!\brief Lateral merging and combination of plant ignition paths
     \param lev The Stratum::LevelType of the Stratum under consideration
@@ -134,7 +152,7 @@ double ForestIgnitionRun::speciesWeightedBasicROS(const Stratum::LevelType& lev)
   to lev.
 */
 double ForestIgnitionRun::speciesWeightedIgnitionTimeStep(const Stratum::LevelType& lev,
-							  const IgnitionPath::PathType ptype) const {
+                const IgnitionPath::PathType ptype) const {
   double returnValue = 0;
   for (const IgnitionPath& ip : paths_) {
     if (!ip.hasSegments() || ip.level() != lev || ip.type() != ptype) continue;
@@ -151,7 +169,7 @@ double ForestIgnitionRun::speciesWeightedIgnitionTimeStep(const Stratum::LevelTy
     and with Stratum::LevelType equal to lev.
   */
 double ForestIgnitionRun::speciesWeightedTimeStepsIgnitionToMaxFlame(const Stratum::LevelType& lev,
-					     const IgnitionPath::PathType ptype) const {
+               const IgnitionPath::PathType ptype) const {
   double returnValue = 0;
   for (const IgnitionPath& ip : paths_) {
     if (!ip.hasSegments() || ip.level() != lev || ip.type() != ptype) continue;
@@ -174,14 +192,14 @@ double ForestIgnitionRun::activeCrownFireROS(const Results& res) const {
   double horizontalDistanceSum = 0;
   for (const Stratum& st : forest_.strata()) {
     ignitionTimeSum  += ( speciesWeightedIgnitionTimeStep(st.level(), IgnitionPath::PLANT_PATH) +
-    			  speciesWeightedTimeStepsIgnitionToMaxFlame(st.level(), IgnitionPath::PLANT_PATH) +
-    			  speciesWeightedIgnitionTimeStep(st.level(),IgnitionPath::STRATUM_PATH) ) * 
+            speciesWeightedTimeStepsIgnitionToMaxFlame(st.level(), IgnitionPath::PLANT_PATH) +
+            speciesWeightedIgnitionTimeStep(st.level(),IgnitionPath::STRATUM_PATH) ) * 
       ffm_settings::computationTimeInterval; 
     //find plant ignition time step from next stratum
     if (st.level() != Stratum::CANOPY) {
       Stratum::LevelType nextLev = forest_.nextLevel(st.level());
       int nextIgnitTimeStep = static_cast<int>(floor(speciesWeightedIgnitionTimeStep(nextLev, 
-   										     IgnitionPath::PLANT_PATH)));
+                           IgnitionPath::PLANT_PATH)));
 
       //where has the statum fire from the current stratum reached when the next 
       //stratum plant fire ignites? This is as per my (Chris Thomas) best understanding 
@@ -190,23 +208,23 @@ double ForestIgnitionRun::activeCrownFireROS(const Results& res) const {
       //different times. 
       Pt weightedFlameOrigin(0,0);
       for (const Species& sp : st.allSpecies()) {
-	//find the stratum ignition path for this species
-	auto i = find_if(paths_.begin(), paths_.end(),
-			 [sp,st](IgnitionPath ip){return ip.species().sameSpecies(sp) && 
-						  ip.level() == st.level() &&
-						  ip.type() == IgnitionPath::STRATUM_PATH;});
-  	if (i < paths_.end())
-  	  //there is a stratum path for this species
-  	  weightedFlameOrigin += (*i).origin(std::min((*i).numSegments() - 1, nextIgnitTimeStep - 1)) * sp.composition();
-  	else {
-  	  //there was no stratum path for this species, we'll use the last origin from the plant path
-  	  i = find_if(paths_.begin(), paths_.end(), 
-		      [sp,st](IgnitionPath ip){return ip.species().sameSpecies(sp) && 
-					       ip.level() == st.level() &&
-					       ip.type() == IgnitionPath::PLANT_PATH;});
-  	  if (i < paths_.end())
-  	    weightedFlameOrigin += (*i).origin() * sp.composition();
-  	}
+  //find the stratum ignition path for this species
+  auto i = find_if(paths_.begin(), paths_.end(),
+       [sp,st](IgnitionPath ip){return ip.species().sameSpecies(sp) && 
+              ip.level() == st.level() &&
+              ip.type() == IgnitionPath::STRATUM_PATH;});
+    if (i < paths_.end())
+      //there is a stratum path for this species
+      weightedFlameOrigin += (*i).origin(std::min((*i).numSegments() - 1, nextIgnitTimeStep - 1)) * sp.composition();
+    else {
+      //there was no stratum path for this species, we'll use the last origin from the plant path
+      i = find_if(paths_.begin(), paths_.end(), 
+          [sp,st](IgnitionPath ip){return ip.species().sameSpecies(sp) && 
+                 ip.level() == st.level() &&
+                 ip.type() == IgnitionPath::PLANT_PATH;});
+      if (i < paths_.end())
+        weightedFlameOrigin += (*i).origin() * sp.composition();
+    }
       } //end of loop over species
       //horizontal distances are measured from left edge of "first" plant
       horizontalDistanceSum += (weightedFlameOrigin.x() + st.avWidth()*0.5);
@@ -214,13 +232,13 @@ double ForestIgnitionRun::activeCrownFireROS(const Results& res) const {
       double y = forest_.stratum(nextLev).avBottom();
       Line bottomOfNextStratum(Pt(0,y), forest_.surface().slope());
       if (res.strataResults().empty()) 
-  	//problem - this should not happen
-  	return -99;
+    //problem - this should not happen
+    return -99;
       auto i = find_if(res.strataResultsBegin(), res.strataResultsEnd(),
-  		    [st](StratumResults sr){return sr.level() == st.level();});
+          [st](StratumResults sr){return sr.level() == st.level();});
       if (i == res.strataResultsEnd())
-  	//stratum st was not found in the results. Again this should not happen
-  	return -99;
+    //stratum st was not found in the results. Again this should not happen
+    return -99;
       Ray r(weightedFlameOrigin, (*i).flameAngle());
       Pt intsct;
       r.intersects(bottomOfNextStratum, intsct);
@@ -232,19 +250,19 @@ double ForestIgnitionRun::activeCrownFireROS(const Results& res) const {
   //add the species weighted distance travelled in the Canopy
   for (const Species& sp : forest_.stratum(Stratum::CANOPY).allSpecies()) {
     auto i = find_if(paths_.begin(), paths_.end(),
-  		  [sp](IgnitionPath ip){return ip.level() == Stratum::CANOPY &&
-  					ip.species().sameSpecies(sp) &&
-  					ip.type() == IgnitionPath::STRATUM_PATH;});
+        [sp](IgnitionPath ip){return ip.level() == Stratum::CANOPY &&
+            ip.species().sameSpecies(sp) &&
+            ip.type() == IgnitionPath::STRATUM_PATH;});
     if (i < paths_.end())
       horizontalDistanceSum += ((*i).maxX() + sp.width()*0.5)*sp.composition();
     else {
       //did not find a stratum path for this species, look for the plant path
       i = find_if(paths_.begin(), paths_.end(),
-  	       [sp](IgnitionPath ip){return ip.level() == Stratum::CANOPY &&
-  				     ip.species().sameSpecies(sp) &&
-  				     ip.type() == IgnitionPath::PLANT_PATH;});
+           [sp](IgnitionPath ip){return ip.level() == Stratum::CANOPY &&
+               ip.species().sameSpecies(sp) &&
+               ip.type() == IgnitionPath::PLANT_PATH;});
       if (i < paths_.end())
-  	horizontalDistanceSum += ((*i).maxX() + sp.width()*0.5)*sp.composition();
+    horizontalDistanceSum += ((*i).maxX() + sp.width()*0.5)*sp.composition();
     }
   }
   //compute time when fire spread in the canopy. Presumably we weight this by species again
@@ -263,7 +281,7 @@ double ForestIgnitionRun::activeCrownFireROS(const Results& res) const {
   with IgnitionPath::PathType equal to ptype and with Stratum::LevelType equal to lev.
 */
 Pt ForestIgnitionRun::speciesWeightedOriginOfMaxFlame(const Stratum::LevelType& lev, 
-						      const IgnitionPath::PathType& ptype) const {
+                  const IgnitionPath::PathType& ptype) const {
   Pt returnValue(0,0);
   for (const IgnitionPath ip : paths_) {
     if (!ip.hasSegments() || ip.level() != lev || ip.type() != ptype)
@@ -285,14 +303,14 @@ double ForestIgnitionRun::speciesWeightedMaxHeightBurnt(const Stratum::LevelType
   for (const Species& spec : forest_.stratum(lev).allSpecies()){
     double tmp = 0;
     auto i = find_if(paths_.begin(), paths_.end(),
-		     [spec](IgnitionPath ip){return ip.species().sameSpecies(spec) && 
-					     ip.type() == IgnitionPath::STRATUM_PATH;});
+         [spec](IgnitionPath ip){return ip.species().sameSpecies(spec) && 
+               ip.type() == IgnitionPath::STRATUM_PATH;});
     if (i != paths_.end())
       tmp = (*i).maxHeightBurnt(forest_.surface().slope());
 
     auto j = find_if(paths_.begin(), paths_.end(),
-		     [spec](IgnitionPath ip){return ip.species().sameSpecies(spec) &&
-					     ip.type() == IgnitionPath::PLANT_PATH;});
+         [spec](IgnitionPath ip){return ip.species().sameSpecies(spec) &&
+               ip.type() == IgnitionPath::PLANT_PATH;});
     if (j != paths_.end()){
       tmp = std::max(tmp, (*j).maxHeightBurnt(forest_.surface().slope()));
     }

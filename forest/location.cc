@@ -97,7 +97,14 @@ Results Location::results() const {
     double flameLength;
     std::map<std::string, std::vector<double>> selectedFlameLengths;
 
-    Pt flameOrigin;
+    // origin of longest flame to use as representative origin for stratum
+    // flame height calculations
+    Pt longestFlameOrigin;
+
+    // max Y ordinate of an ignited segment end-point to report for strata
+    // (allows detecting cases where flame tip height from ground level is
+    // less than flame origin height).
+    double maxOriginHeight;  
 
     if (strat.level() != Stratum::CANOPY) {
       std::map<std::string, std::vector<double>> plantFlameLengths = 
@@ -114,18 +121,21 @@ Results Location::results() const {
 
         if (plantFlameLength > stratumFlameLength){
           flameLength = plantFlameLength;
-          flameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
+          longestFlameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
           selectedFlameLengths = plantFlameLengths;
+          maxOriginHeight = fir.highestFlameOriginY(strat.level(), IgnitionPath::PLANT_PATH);
 
         } else {
           flameLength = stratumFlameLength;
-          flameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
+          longestFlameOrigin = fir.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
           selectedFlameLengths = stratumFlameLengths;
+          maxOriginHeight = fir.highestFlameOriginY(strat.level(), IgnitionPath::STRATUM_PATH);
         }
       } else { // no plant flames
         flameLength = 0;
-        flameOrigin = Pt(0, 0);
+        longestFlameOrigin = Pt(0, 0);
         selectedFlameLengths = plantFlameLengths;
+        maxOriginHeight = 0;
       }
 
     } else { //the canopy
@@ -143,18 +153,21 @@ Results Location::results() const {
 
         if (plantFlameLength > stratumFlameLength){
           flameLength = plantFlameLength;
-          flameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
+          longestFlameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
           selectedFlameLengths = plantFlameLengths;
+          maxOriginHeight = fir1.highestFlameOriginY(strat.level(), IgnitionPath::PLANT_PATH);
 
         } else {
           flameLength = stratumFlameLength;
-          flameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
+          longestFlameOrigin = fir1.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
           selectedFlameLengths = stratumFlameLengths;
+          maxOriginHeight = fir1.highestFlameOriginY(strat.level(), IgnitionPath::STRATUM_PATH);
         }
       } else {
         flameLength = 0.0;
-        flameOrigin = Pt(0, 0);
+        longestFlameOrigin = Pt(0, 0);
         selectedFlameLengths = plantFlameLengths;
+        maxOriginHeight = 0;
       }
       
       if (runTwoExists) {
@@ -171,14 +184,16 @@ Results Location::results() const {
 
           if(stratumFlameLength > flameLength) {
             flameLength = stratumFlameLength;
-            flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
+            longestFlameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::STRATUM_PATH);
             selectedFlameLengths = stratumFlameLengths;
+            maxOriginHeight = fir2.highestFlameOriginY(strat.level(), IgnitionPath::STRATUM_PATH);
           }
 
           if (plantFlameLength > flameLength){
             flameLength = plantFlameLength;
-            flameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
+            longestFlameOrigin = fir2.speciesWeightedOriginOfMaxFlame(strat.level(), IgnitionPath::PLANT_PATH);
             selectedFlameLengths = plantFlameLengths;
+            maxOriginHeight = fir2.highestFlameOriginY(strat.level(), IgnitionPath::PLANT_PATH);
           } 
         } 
       }
@@ -209,11 +224,11 @@ Results Location::results() const {
     //achieved by the flame with the maximum flame length, so maybe needs
     //to be changed later
     
-    double ht = flameOrigin.y() + flameLength * sin(flameAng) - 
-      (flameOrigin.x() + flameLength * cos(flameAng))*tan(slope());
+    double ht = longestFlameOrigin.y() + flameLength * sin(flameAng) - 
+      (longestFlameOrigin.x() + flameLength * cos(flameAng))*tan(slope());
 
     stratResults.flameTipHeight(ht);
-    stratResults.flameOriginHeight(flameOrigin.y());
+    stratResults.flameOriginHeight(maxOriginHeight);
 
     // Representative flame heights for contributing species flames
     for (const Species& spec : strat.allSpecies()) {
@@ -221,8 +236,8 @@ Results Location::results() const {
       if (it != selectedFlameLengths.end()) {  // ie. species has an entry
         double maxLen = ffm_util::cappedMax( it->second );  
         
-        ht = flameOrigin.y() + maxLen * sin(flameAng) - 
-          (flameOrigin.x() + maxLen * cos(flameAng)) * tan(slope());
+        ht = longestFlameOrigin.y() + maxLen * sin(flameAng) - 
+          (longestFlameOrigin.x() + maxLen * cos(flameAng)) * tan(slope());
       }
       else {  // no entry for species - must not even have pre-ignition data
         ht = 0.0;

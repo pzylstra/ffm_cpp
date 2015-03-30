@@ -315,7 +315,7 @@ inline std::string Results::printROS() const {
 */
 inline std::string Results::printFlameTipHeight() const {
   char s[30];
-  sprintf(s, "%5.1f", flameTipHeight_);
+  sprintf(s, "%6.2f", flameTipHeight_);
   return std::string(s);
 }
 
@@ -324,7 +324,7 @@ inline std::string Results::printFlameTipHeight() const {
 */
 inline std::string Results::printFlameOriginHeight() const {
   char s[30];
-  sprintf(s, "%5.1f", flameOriginHeight_);
+  sprintf(s, "%6.2f", flameOriginHeight_);
   return std::string(s);
 }
 
@@ -333,7 +333,7 @@ inline std::string Results::printFlameOriginHeight() const {
 */
 inline std::string Results::printFlameLength() const {
   char s[30];
-  sprintf(s, "%5.1f", flameLength_);
+  sprintf(s, "%6.2f", flameLength_);
   return std::string(s);
 }
 
@@ -342,7 +342,7 @@ inline std::string Results::printFlameLength() const {
 */
 inline std::string Results::printFlameAngle() const {
   char s[30];
-  sprintf(s, "%5.1f", flameAngle_*180/PI);
+  sprintf(s, "%6.2f", flameAngle_*180/PI);
   return std::string(s);
 }
 
@@ -369,7 +369,7 @@ inline std::string Results::printSurfaceROS() const {
 */
 inline std::string Results::printSurfaceFlameLength() const {
   char s[30];
-  sprintf(s, "%5.1f", surfaceFlameLength_);
+  sprintf(s, "%6.2f", surfaceFlameLength_);
   return std::string(s);
 }
 
@@ -378,7 +378,7 @@ inline std::string Results::printSurfaceFlameLength() const {
 */
 inline std::string Results::printSurfaceFlameHeight() const {
   char s[30];
-  sprintf(s, "%5.1f", surfaceFlameHeight_);
+  sprintf(s, "%6.2f", surfaceFlameHeight_);
   return std::string(s);
 }
 
@@ -387,7 +387,7 @@ inline std::string Results::printSurfaceFlameHeight() const {
 */
 inline std::string Results::printSurfaceFlameAngle() const {
   char s[30];
-  sprintf(s, "%5.1f", surfaceFlameAngle_*180/PI);
+  sprintf(s, "%6.2f", surfaceFlameAngle_*180/PI);
   return std::string(s);
 }
 
@@ -431,7 +431,7 @@ inline std::string Results::printWindReductionFactor() const {
 */
 inline std::string Results::printScorchHeightMcarthur() const {
   char s[30];
-  sprintf(s, "%5.1f", scorchHeightMcarthur_);
+  sprintf(s, "%6.2f", scorchHeightMcarthur_);
   return std::string(s);
 }
 
@@ -440,7 +440,7 @@ inline std::string Results::printScorchHeightMcarthur() const {
 */
 inline std::string Results::printScorchHeightLukeMcarthur() const {
   char s[30];
-  sprintf(s, "%5.1f", scorchHeightLukeMcarthur_);
+  sprintf(s, "%6.2f", scorchHeightLukeMcarthur_);
   return std::string(s);
 }
 
@@ -449,7 +449,7 @@ inline std::string Results::printScorchHeightLukeMcarthur() const {
 */
 inline std::string Results::printScorchHeightVanWagner() const {
   char s[30];
-  sprintf(s, "%5.1f", scorchHeightVanWagner_);
+  sprintf(s, "%6.2f", scorchHeightVanWagner_);
   return std::string(s);
 }
 
@@ -458,7 +458,7 @@ inline std::string Results::printScorchHeightVanWagner() const {
 */
 inline std::string Results::printScorchHeightVanWagnerWithWind() const {
   char s[30];
-  sprintf(s, "%5.1f", scorchHeightVanWagnerWithWind_);
+  sprintf(s, "%6.2f", scorchHeightVanWagnerWithWind_);
   return std::string(s);
 }
 
@@ -544,7 +544,7 @@ inline std::string Results::printToString(const OutputLevelType& outputLevel) co
   str += printFlameOriginHeight() + "\n";
   if (outputLevel >= DETAILED) {
     blanks = std::string(name.size(), ' ');
-    str += blanks + surface + "  0.0" + "\n";
+    str += blanks + surface + "  0.00" + "\n";
     for (const StratumResults& sr : strataResults_) {
       str += blanks + levelStringMap.at(sr.level()) + ":";
       str += std::string(surface.size() - levelStringMap.at(sr.level()).size() - 1,' ');
@@ -568,7 +568,7 @@ inline std::string Results::printToString(const OutputLevelType& outputLevel) co
         str += levelStringMap.at(sr.level()) + ":" ;
         str += std::string(surface.size() - levelStringMap.at(sr.level()).size() - 1,' ');
 
-        sprintf(buf, "%5.1f", it->second);
+        sprintf(buf, "%6.2f", it->second);
         str += std::string(buf) + " " + it->first + "\n";
 
         first = false;
