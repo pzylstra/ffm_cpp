@@ -599,7 +599,9 @@ std::string printMonteCarloHeader(const Location& loc) {
     str += "Flame length";
     advance = 2 + loc.strata().size();
     str += std::string(advance, sepChar);
-    str += "Flame height";
+    str += "Flame tip height";
+    str += std::string(advance, sepChar);
+    str += "Flame origin height";
     str += std::string(advance, sepChar);
     str += "Flame angle";
     str += std::string(advance, sepChar);
@@ -702,6 +704,11 @@ std::string printMonteCarloResults(const Results& res) {
   str += sepStr + res.printSurfaceFlameHeight();
   for (const auto& sr : res.strataResults())
     str += sepStr + sr.printFlameTipHeight();
+
+  str += sepStr + res.printFlameOriginHeight();
+  str += sepStr + "0.0"; // for surface origin height
+  for (const auto& sr : res.strataResults())
+    str += sepStr + sr.printFlameOriginHeight();
 
   str += sepStr + res.printFlameAngle();
   str += sepStr + res.printSurfaceFlameAngle();

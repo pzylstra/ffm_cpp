@@ -35,25 +35,21 @@ void process(std::string inPath, std::ostream &outputStream, bool paramsFlag) {
     outputStream << res.printToString(outputLevel) << endl;
   }
   else {
-    int counter = 0;
-    bool firstTime = true;
-    while (counter < numIter) {
+    for (int i = 0; i < numIter; ) {
       Location loc = parseInputTextFile(inPath, monteCarlo);
-      if (loc.empty()) {
-	cout << "continuing" << endl;
-	continue;
+
+      if (!loc.empty()) {
+        if (i == 0) outputStream << printMonteCarloHeader(loc);
+
+        Results res = loc.results();
+
+        outputStream << printMonteCarloInputs(loc);
+        outputStream << printMonteCarloResults(res) << endl;
+
+        i++ ;
       }
-      Results res = loc.results();
-      if (firstTime) {
-	outputStream << printMonteCarloHeader(loc);
-	firstTime = false;
-      }
-      outputStream << printMonteCarloInputs(loc);
-      outputStream << printMonteCarloResults(res) << endl;
-      ++counter;
     }
   }
-
 
 }
 
