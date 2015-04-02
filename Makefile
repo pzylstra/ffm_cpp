@@ -1,3 +1,7 @@
+# Use the windoze 'del' command rather than GNU 'rm' so that this will work
+# on systems without cygwin bits
+RM = cmd \/C del
+
 #set BASEDIR to parent directory of forest, fire, geometry etc directories
 BASEDIR = .
 
@@ -75,5 +79,5 @@ test.o : $(BASEDIR)/forest/test.cc $(ALL_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(BASEDIR)/forest/test.cc
 
 clean :
-	del *.o ffm.exe
+	$(RM) *.o ffm.exe
 
