@@ -662,98 +662,100 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
     //bool for whether connection 
     bool connection = false;
 
-    //first loop over the species - plant ignition
-    for (const Species& spec : strat.allSpecies()) {
+    if (strat.includeForIgnition()) {
+      //first loop over the species - plant ignition
+      for (const Species& spec : strat.allSpecies()) {
 
-      double comp = spec.composition();
+        double comp = spec.composition();
 
-      //initialise ignition path for this species. This will eventually hold the ignition 
-      //path for the most influential scenario
-      IgnitionPath speciesIgnitionPath;
+        //initialise ignition path for this species. This will eventually hold the ignition 
+        //path for the most influential scenario
+        IgnitionPath speciesIgnitionPath;
 
-      //loop over ignition point scenarios
-      for (int ignitPtScenario = -2; ignitPtScenario <= 2; ++ignitPtScenario) {
+        //loop over ignition point scenarios
+        for (int ignitPtScenario = -2; ignitPtScenario <= 2; ++ignitPtScenario) {
 
-        //compute scenario initial ignition point, make sure this is not below the surface
-        Pt iPt = spec.crown().pointInBase( 0.25*ignitPtScenario*spec.width());
-        if (iPt.y() < iPt.x()*tan(slope()))
-          iPt = Pt(iPt.x(), iPt.x()*tan(slope()));
+          //compute scenario initial ignition point, make sure this is not below the surface
+          Pt iPt = spec.crown().pointInBase( 0.25*ignitPtScenario*spec.width());
+          if (iPt.y() < iPt.x()*tan(slope()))
+            iPt = Pt(iPt.x(), iPt.x()*tan(slope()));
 
-        //compute ignition path for this scenario
-        IgnitionPath iPath = computeIgnitionPath(incidentFlames, 
-                                                 PLANT_IGNITION_RUN, 
-                                                 preHeatingFlames, 
-                                                 preHeatingEndTime, 
-                                                 strat.level(), 
-                                                 spec,
-                                                 0,
-                                                 stratumWindSpeed, 
-                                                 iPt);
+          //compute ignition path for this scenario
+          IgnitionPath iPath = computeIgnitionPath(incidentFlames, 
+              PLANT_IGNITION_RUN, 
+              preHeatingFlames, 
+              preHeatingEndTime, 
+              strat.level(), 
+              spec,
+              0,
+              stratumWindSpeed, 
+              iPt);
 
-        if (iPath.hasSegments()) {  
-          // ignition occurred
+          if (iPath.hasSegments()) {  
+            // ignition occurred
 
-          if (speciesIgnitionPath.hasSegments()) {
-            // there was a prior path with ignition...
-            // check to see if this ignition scenario has a longer flame length than any of the previous ones. 
-            // and replace stored IgnitionPath if necessary. Note we compare segment lengths
-            if (ffm_numerics::gt(iPath.maxSegmentLength(), speciesIgnitionPath.maxSegmentLength())) 
+            if (speciesIgnitionPath.hasSegments()) {
+              // there was a prior path with ignition...
+              // check to see if this ignition scenario has a longer flame length than any of the previous ones. 
+              // and replace stored IgnitionPath if necessary. Note we compare segment lengths
+              if (ffm_numerics::gt(iPath.maxSegmentLength(), speciesIgnitionPath.maxSegmentLength())) 
+                speciesIgnitionPath = iPath;
+
+            } else { 
+              // no prior path with ignited segments so save this one
               speciesIgnitionPath = iPath;
+            }
 
           } else { 
-            // no prior path with ignited segments so save this one
-            speciesIgnitionPath = iPath;
+            // ignition did not occur...
+            // if the prior path also didn't have ignition, keep the one with the max temperature 
+            if (!speciesIgnitionPath.hasSegments() && ffm_numerics::gt(iPath.maxPreIgnitionTemp(), speciesIgnitionPath.maxPreIgnitionTemp())) {
+              speciesIgnitionPath = iPath;
+            }
           }
 
-        } else { 
-          // ignition did not occur...
-          // if the prior path also didn't have ignition, keep the one with the max temperature 
-          if (!speciesIgnitionPath.hasSegments() && ffm_numerics::gt(iPath.maxPreIgnitionTemp(), speciesIgnitionPath.maxPreIgnitionTemp())) {
-            speciesIgnitionPath = iPath;
+        }//end of loop over ignition scenarios
+
+        //add the plant ignition path to ignitionRun
+        if (speciesIgnitionPath.hasSegments() || speciesIgnitionPath.hasPreIgnitionData()) {
+          ignitionRun.addPath(speciesIgnitionPath);
+
+          if (speciesIgnitionPath.hasSegments()) {
+            //add component of species weighted ignition time 
+            speciesWeightedIgnitionTime += (speciesIgnitionPath.timeToIgnition() + 
+                speciesIgnitionPath.timeIgnitionToMaxFlame()) * comp;
+            //order the vector of ignited segments according to flamelength
+            speciesIgnitionPath.sortSegments();
+
+            //loop over segments and add species-weighted flame information
+            unsigned i = 0;
+            for (const Seg& sg : speciesIgnitionPath.ignitedSegments()){
+              if (ffm_numerics::leq(sg.length(), 0))
+                break; //because the segments are sorted max to min
+              double tmpFlameLength = spec.flameLength(sg.length());
+              //if flame from any segment burns out past the edge of the plant then set connection to true
+              if (!connection && 
+                  sg.start().x() + 
+                  tmpFlameLength*cos(windEffectFlameAngle(tmpFlameLength, stratumWindSpeed, slope())) > 0.5*spec.width()
+                 )
+                connection = true;
+              //add (species weighted) flame info to vector of flame lengths
+              speciesWeightedFlameLengths.at(i) += comp*tmpFlameLength;
+              speciesWeightedFlameDepths.at(i) += comp*sg.length();
+              speciesWeightedFlameOrigins.at(i) += comp*sg.start();
+              speciesAndFlameWeightedFlameTemps.at(i) += comp*tmpFlameLength *
+                (spec.isGrass() && strat.level() == Stratum::NEAR_SURFACE ? 
+                 ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
+              ++i;
+            }
+
+            //add the composition weighted origin from the largest (first after sorting) flame length
+            speciesWeightedFlameOrigin += comp*speciesIgnitionPath.ignitedSegments().front().start();
           }
         }
 
-      }//end of loop over ignition scenarios
-      
-      //add the plant ignition path to ignitionRun
-      if (speciesIgnitionPath.hasSegments() || speciesIgnitionPath.hasPreIgnitionData()) {
-        ignitionRun.addPath(speciesIgnitionPath);
-        
-        if (speciesIgnitionPath.hasSegments()) {
-          //add component of species weighted ignition time 
-          speciesWeightedIgnitionTime += (speciesIgnitionPath.timeToIgnition() + 
-              speciesIgnitionPath.timeIgnitionToMaxFlame()) * comp;
-          //order the vector of ignited segments according to flamelength
-          speciesIgnitionPath.sortSegments();
-
-          //loop over segments and add species-weighted flame information
-          unsigned i = 0;
-          for (const Seg& sg : speciesIgnitionPath.ignitedSegments()){
-            if (ffm_numerics::leq(sg.length(), 0))
-              break; //because the segments are sorted max to min
-            double tmpFlameLength = spec.flameLength(sg.length());
-            //if flame from any segment burns out past the edge of the plant then set connection to true
-            if (!connection && 
-                sg.start().x() + 
-                tmpFlameLength*cos(windEffectFlameAngle(tmpFlameLength, stratumWindSpeed, slope())) > 0.5*spec.width()
-               )
-              connection = true;
-            //add (species weighted) flame info to vector of flame lengths
-            speciesWeightedFlameLengths.at(i) += comp*tmpFlameLength;
-            speciesWeightedFlameDepths.at(i) += comp*sg.length();
-            speciesWeightedFlameOrigins.at(i) += comp*sg.start();
-            speciesAndFlameWeightedFlameTemps.at(i) += comp*tmpFlameLength *
-              (spec.isGrass() && strat.level() == Stratum::NEAR_SURFACE ? 
-               ffm_settings::grassFlameDeltaTemp : ffm_settings::mainFlameDeltaTemp);
-            ++i;
-          }
-
-          //add the composition weighted origin from the largest (first after sorting) flame length
-          speciesWeightedFlameOrigin += comp*speciesIgnitionPath.ignitedSegments().front().start();
-        }
-      }
-
-    } //end of first loop over species - plant ignition
+      } //end of first loop over species - plant ignition
+    }
 
     //If there is a non-trivial vector of species-weighted flame data from the plant ignition 
     //calculation then we continue on to the stratum ignition calc

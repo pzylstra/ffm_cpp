@@ -15,7 +15,8 @@ using std::string;
 
 Stratum::Stratum(const Stratum::LevelType& level,
 		 const std::vector<Species>& speciesVector, 
-		 const double& plantSeparation) :
+		 const double& plantSeparation,
+		 bool includeForIgnition) :
   level_(UNKNOWN_LEVEL),
   allSpecies_(),
   plantSep_(-99)
@@ -42,6 +43,8 @@ Stratum::Stratum(const Stratum::LevelType& level,
     s.composition(s.composition() / sum);
   level_ = level;
   if (plantSeparation >= 0) plantSep_ = plantSeparation;
+
+  includeForIgnition_ = includeForIgnition;
 }
 
 // average width, top, bottom, midheight computations for stratum

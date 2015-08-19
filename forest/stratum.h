@@ -28,13 +28,15 @@ public:
   Stratum();
   Stratum(const LevelType& level,
 	  const std::vector<Species>& allSpecies, 
-	  const double& plantSeparation);
+	  const double& plantSeparation,
+	  bool includeForIgnition);
 
   //accessors
 
   LevelType level() const;
   std::vector<Species> allSpecies() const;
   double plantSep() const;
+  bool includeForIgnition() const;
 
   //other methods
 
@@ -72,6 +74,7 @@ private:
   LevelType level_;
   std::vector<Species> allSpecies_;
   double plantSep_;
+  bool includeForIgnition_;
 };
 
 

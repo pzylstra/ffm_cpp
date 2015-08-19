@@ -288,7 +288,7 @@ Location parseInputTextFile(const std::string& inPath, const bool& monteCarlo) {
 		  [level](Stratum s){return level == s.level();}) 
 	  < stratVec.end()) continue;
      
-      const Stratum& s = Stratum(level, specVec, psep);
+      const Stratum& s = Stratum(level, specVec, psep, true);
 
       // If this is a monte-carlo run, and we are modelling gaps for this stratum,
       // then we take stratum cover as the probability of including the stratum in
@@ -310,7 +310,12 @@ Location parseInputTextFile(const std::string& inPath, const bool& monteCarlo) {
         addStratum = true;
       }
 
-      if (addStratum) stratVec.push_back(s);
+      if (addStratum) {
+        stratVec.push_back(s);
+      } else {
+        // recreate the Stratum with the include flag set to false
+        stratVec.push_back( Stratum(level, specVec, psep, false) );
+      }
       continue;
     }
       

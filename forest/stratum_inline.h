@@ -26,6 +26,8 @@ inline std::vector<Species> Stratum::allSpecies() const {
 */
 inline double Stratum::plantSep() const {return plantSep_;}
 
+inline bool Stratum::includeForIgnition() const { return includeForIgnition_; }
+
 //operators
 
 /*!\brief Inequality
