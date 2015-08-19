@@ -1,11 +1,12 @@
-#include <iostream>
-#include <fstream>
 #include <algorithm>
-#include <string>
-#include <vector>
-#include <map>
-#include <tuple>
+#include <fstream>
 #include <iostream>
+#include <map>
+#include <set>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 #include "pt.h"
 #include "seg.h"
@@ -71,8 +72,8 @@ double stringToDouble(const std::string& str) {
 
 /*!\brief Initial parse of input file
   \param inPath input file path
-  \return A pair consisting of the output level desired (Results::OutputLevelType) and the
-  number of monte carlo iterations required
+  \return A pair consisting of the output level desired (Results::OutputLevelType)
+          and the number of monte carlo iterations (if applicable) 
 */
 std::pair<Results::OutputLevelType, int> prelimParseInputTextFile(std::string inPath) {
   //provides an intial parse of the input file, to find output type and the number of monte carlo
@@ -191,7 +192,17 @@ Location parseInputTextFile(const std::string& inPath, const bool& monteCarlo) {
   leafFormTypeMap = { {"round", Species::ROUND_LEAF},
 		      {"flat", Species::FLAT_LEAF} };
 
- 
+
+  // read the file contents into a vector of strings
+  std::vector<std::string> LINES;
+  {
+    std::string s;
+    while (getline(inFile, s)) {
+      LINES.push_back(s);
+    }
+  }
+
+
   //At the moment there is no input for species  dead fuel moisture content, although Species
   //objects have deadLeafMoisture_ data member. So the surface dead fuel moisture content is used
   //to fill the deadLeafMoisture_ data member for each instantiated Species object. So we need a
@@ -199,8 +210,7 @@ Location parseInputTextFile(const std::string& inPath, const bool& monteCarlo) {
   //this obviates the need for the surface variables to occur first in the input text file
   //this hack can be eliminated if/when dfmc is specified on a species by species basis
   dfmc = -99;
-  while(getline(inFile, line)) {
-
+  for (auto &line : LINES) {
     std::vector<std::string> strVec = processLine(line);
     if (strVec.size() < 2) continue;
     firstString = strVec.front();
@@ -219,11 +229,30 @@ Location parseInputTextFile(const std::string& inPath, const bool& monteCarlo) {
     }
   }
   
-  //rewind the file and start again
-  inFile.seekg(0);
+  // Look for stratum gap parameters if present
+  //
+  std::set<Stratum::LevelType> strataWithGaps;
+  for (auto &line : LINES) {
+    std::vector<std::string> strVec = processLine(line);
+    if (strVec.size() < 2) continue;
+    firstString = strVec.front();
+    secondString = strVec.back();
 
-  //read the file line by line
-  while(getline(inFile, line)) {
+    if (firstString == "stratumgaps") {
+      std::vector<std::string> levels = ffm_util::split(secondString, ',');
+      for (auto &levelStr : levels) {
+        std::string s = ffm_util::reduce(levelStr);
+        std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+        strataWithGaps.insert( levelTypeMap.at(s) );
+      }
+
+      break;  // ignore any subsequent "stratum gaps" lines
+    }
+  }
+
+  // Now process parameters as a whole
+  //
+  for (auto &line : LINES) {
 
     std::vector<std::string> strVec = processLine(line);
     if (strVec.empty()) continue;
@@ -259,7 +288,29 @@ Location parseInputTextFile(const std::string& inPath, const bool& monteCarlo) {
 		  [level](Stratum s){return level == s.level();}) 
 	  < stratVec.end()) continue;
      
-      stratVec.push_back(Stratum(level, specVec, psep));
+      const Stratum& s = Stratum(level, specVec, psep);
+
+      // If this is a monte-carlo run, and we are modelling gaps for this stratum,
+      // then we take stratum cover as the probability of including the stratum in
+      // the stand. If not a monte-carlo run, the stratum is included regardless 
+      // of cover.
+      bool addStratum = false;
+      if (monteCarlo) {
+        if (strataWithGaps.find(s.level()) != strataWithGaps.end()) { 
+          // Modelling gaps for this stratum - use cover as probability of inclusion
+          addStratum = ffm_util::randomUniform() < s.cover();
+        }
+        else {
+          // Not modelling gaps so include stratum
+          addStratum = true;
+        }
+
+      } else {
+        // Not  a monte-carlo run so include stratum
+        addStratum = true;
+      }
+
+      if (addStratum) stratVec.push_back(s);
       continue;
     }
       
@@ -519,7 +570,7 @@ Location parseInputTextFile(const std::string& inPath, const bool& monteCarlo) {
     }
 
 
-  }  //end of file read
+  }  //end of file contents
 
   return Location(Forest(Surface(slope,dfmc,fuelload,fueldiam,thickl), stratVec, strataOverlapVec),
 		  Weather(airtemp),

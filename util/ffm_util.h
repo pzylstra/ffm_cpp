@@ -39,6 +39,9 @@ namespace ffm_util {
 
   double randomUniform(const double& mean, const double& range);
 
+  // Draw a random value from U[0, 1]
+  double randomUniform();
+
   //expects str to be comma separated pair representing mean and range
   //if only one value then assumes range is zero
   double randomUniform(const std::string& str);

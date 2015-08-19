@@ -1,6 +1,8 @@
 #include <limits.h>
 #include <iostream>
 #include <fstream>
+#include <set>
+#include <utility>
 #include "pt.h"
 #include "species.h"
 #include "stratum.h"
@@ -13,19 +15,21 @@
 
 using namespace ffm_settings;
 using std::vector;
+using std::set;
 using std::cout;
 using std::endl;
 
 void process(std::string inPath, std::ostream &outputStream, bool paramsFlag) {
 
-  std::pair<Results::OutputLevelType, int> waddaYaWant = prelimParseInputTextFile(inPath);
-  Results::OutputLevelType outputLevel = waddaYaWant.first;
-  int numIter = waddaYaWant.second;
+  std::pair<Results::OutputLevelType, int> prelimPars = prelimParseInputTextFile(inPath);
+
+  Results::OutputLevelType outputLevel = std::get<0>(prelimPars);
+  int numIter = std::get<1>(prelimPars);
   
   bool monteCarlo = (outputLevel == Results::MONTE_CARLO);
   
   if (!monteCarlo) {
-    Location loc = parseInputTextFile(inPath, monteCarlo);
+    Location loc = parseInputTextFile(inPath, false);
 
     if (paramsFlag) 
       outputStream << loc.printToString() << endl;
@@ -36,7 +40,7 @@ void process(std::string inPath, std::ostream &outputStream, bool paramsFlag) {
   }
   else {
     for (int i = 0; i < numIter; ) {
-      Location loc = parseInputTextFile(inPath, monteCarlo);
+      Location loc = parseInputTextFile(inPath, true);
 
       if (!loc.empty()) {
         if (i == 0) outputStream << printMonteCarloHeader(loc);

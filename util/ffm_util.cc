@@ -151,6 +151,16 @@ namespace ffm_util {
     return distribution(generator);
   }
 
+  /*
+   * Random number from U[0, 1].
+   */
+  double randomUniform() {
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine generator(seed);
+    std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    return distribution(generator);
+  }
+
   /*!\brief Random number from specified normal distribution
     \param str A comma separated pair representing mean and standard deviation
     of the desired distribution. If only one value is present then that is assumed

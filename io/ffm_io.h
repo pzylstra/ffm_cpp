@@ -2,6 +2,7 @@
 #define FFM_IO_H
 
 #include "location.h"
+#include <utility>
 
 std::vector<std::string> processLine(const std::string& line);
 
