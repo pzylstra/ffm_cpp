@@ -61,6 +61,7 @@ class Species{
 
   //accessors
 
+  bool          isValid() const;
   double        composition() const;
   std::string   name() const;
   Poly          crown() const;
@@ -119,6 +120,8 @@ class Species{
   bool sameSpecies(const Species&) const; 
 
 private:
+
+  bool         isValid_ = false;
 
   double       composition_ = 0; 
   std::string  name_ = std::string();

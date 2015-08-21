@@ -389,8 +389,22 @@ Location parseInputTextFile(const std::string& inPath, const bool& monteCarlo) {
 	}
       }
 
-      specVec.push_back(Species(comp, spname, hc, he, ht, hp, w, lmoist, dfmc, pdead, sfac,  
-				itemp, lform,lthick,lwidth, llength, lsep, sord, cdiam, csep));
+
+      // So far so good. Now create a Species object and check that its 
+      // internal checks have not picked up any problems.
+      const Species& species = Species(comp, spname, hc, he, ht, hp, w, lmoist, dfmc, pdead, sfac,  
+		      itemp, lform,lthick,lwidth, llength, lsep, sord, cdiam, csep);
+
+      if (!species.isValid()) {
+	if (monteCarlo) 
+	  return Location();
+	else {
+	  std::cout << "Problem with input values for species " + spname;
+	  exit(1);
+	}
+      }
+
+      specVec.push_back(species);
       continue;
     }
 

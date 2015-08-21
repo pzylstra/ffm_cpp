@@ -78,6 +78,8 @@ inline Species::Species(const double& composition,
   if (leafThick_ <= 0 || leafWidth_ <= 0 || leafLength_ <= 0 || leafSep_ < 0) okay = false;
   if (stemOrder_ < 0 || clumpDiam_ <= 0 || clumpSep_ < 0 || propDead_ < 0) okay = false;
 
+  isValid_ = okay;
+
   if (!okay){
     composition_ = 0;
     name_.clear();
@@ -175,6 +177,8 @@ inline Species::Species(const double& composition,
   if (leafThick_ <= 0 || leafWidth_ <= 0 || leafLength_ <= 0 || leafSep_ < 0) okay = false;
   if (stemOrder_ < 0 || clumpDiam_ <= 0 || clumpSep_ < 0 || propDead_ < 0) okay = false;
 
+  isValid_ = okay;
+
   if (!okay){
     name_.clear();
     crown_ = Poly();
@@ -196,6 +200,7 @@ inline Species::Species(const double& composition,
 
 //accessors
 
+inline bool Species::isValid() const { return isValid_; }
 /*!\brief Species composition
   \return The composition of the species within a Stratum (see basic constructor)
 */

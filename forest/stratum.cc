@@ -1,3 +1,4 @@
+#include <iostream>
 #include "stratum.h"
 
 using std::string;
@@ -26,7 +27,10 @@ Stratum::Stratum(const Stratum::LevelType& level,
   //species  vector must be non-empty and the 
   //plant separation is allowed to be negative
   //in which case it is considered to be N/A and is set to -99
-  if(speciesVector.empty()) return;
+  if(speciesVector.empty()) {
+    std::cout << "Stratum " << level << " passed empty species vector \n";
+    exit(1);
+  }
 
   double sum(0);
   for (const Species& s : speciesVector){
@@ -35,6 +39,14 @@ Stratum::Stratum(const Stratum::LevelType& level,
       //an empty species to a stratum
       allSpecies_.push_back(s);
       sum += s.composition();
+    }
+    else {
+      std::cout << "In stratum.cc\n";
+      if (s.composition() <= 0)
+        std::cout << "Species " << s.name() << " has invalid composition value " << s.composition() << std::endl;
+      else if (s.crown().vertices().empty())
+        std::cout << "bad crown thing \n";
+      exit(1);
     }
   }
   if (sum == 0) return; //an empty stratum
