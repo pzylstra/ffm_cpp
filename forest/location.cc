@@ -438,7 +438,7 @@ Results Location::results() const {
   //Martin E. Alexander, and Miguel G. Cruz
   //Interdependencies between flame length and fireline intensity in predicting crown fire initiation
   //and crown scorch height
-  //International Journal of Wildland Fire 2012, 21, 95–113
+  //International Journal of Wildland Fire 2012, 21, 95-113
   overallResults.scorchHeightVanWagner(0.1483*pow(byramIntensity,0.667)); 
   //for wind use second run (no canopy) if it exists, else use first run
   //note conversion to km/h
@@ -523,7 +523,7 @@ combined flame series from the surface and lower strata. The
 ignition scenario that produces the greatest maximum flame length is 
 chosen as representative for that species, and the corresponding 
 plant ignition path is added to the ForestIgnitionRun object being returned. 
-The series of flames produced by this “most successful” scenario is 
+The series of flames produced by this most successful scenario is 
 then reordered in decreasing order of flame length. This procedure 
 is carried out for each of the species in the stratum, resulting in an 
 ignition path and corresponding re-ordered series of flames for each 
@@ -962,7 +962,7 @@ ForestIgnitionRun Location::forestIgnitionRun(const bool& includeCanopy) const {
       
       preHeatingFlames.push_back(phf);
       //check whether largest (ie first after sorting) species weighted stratum flame is longer than
-      //the largest species weighted plant flame and if so set connection. This is part of the (strange)
+      //the largest species weighted plant flame and if so set connection. This is part of the 
       //calculation from the spreadsheet to determine whether or not a stratum can ignite an upper stratum 
       //see for example Fuels!B266 and B269
       if (!connection && !speciesWeightedStratumFlames.isNull() &&

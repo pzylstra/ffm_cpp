@@ -52,13 +52,12 @@ inline double Surface::fuelLoad() const {return fuelLoad_;}
 inline double Surface::meanFuelDiam() const {return meanFuelDiam_;}
 
 /*!\brief Mean fineness of leaves
-  \return Mean fineness of leaves (ask P Zylstra for more information on this parameter)
+  \return Mean fineness of leaves 
 */
 inline double Surface::meanFineLeaves() const {return meanFineLeaves_;}
 
 //surface fire models
 
-/*!\brief Ask Phil Zylstra for more information on this method*/
 inline double Surface::thicknessMultiplier() const{
   //Taken from McArthur 1966 and rendered to equation form in Zylstra 2013
   //thicknessMultiplier = 0.5314*meanFineLeaves_^-0.401

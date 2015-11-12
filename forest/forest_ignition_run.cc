@@ -201,11 +201,6 @@ double ForestIgnitionRun::activeCrownFireROS(const Results& res) const {
       int nextIgnitTimeStep = static_cast<int>(floor(speciesWeightedIgnitionTimeStep(nextLev, 
                            IgnitionPath::PLANT_PATH)));
 
-      //where has the statum fire from the current stratum reached when the next 
-      //stratum plant fire ignites? This is as per my (Chris Thomas) best understanding 
-      //of the specs but in my opinion it is problematic to species weight results from
-      //individual time steps like this. For a start, the individual species ignite at 
-      //different times. 
       Pt weightedFlameOrigin(0,0);
       for (const Species& sp : st.allSpecies()) {
   //find the stratum ignition path for this species

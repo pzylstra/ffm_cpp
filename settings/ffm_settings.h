@@ -97,7 +97,7 @@ namespace ffm_settings{
 
     It is a necessary but not sufficient condition for a Stratum fire to be considered independent 
     that the reported flame angle of the stratum fire be less than or equal to the slope 
-    plus independentSpreadSensitivity. Ask Phil Zylstra for an explanation of this requirement
+    plus independentSpreadSensitivity. 
   */
   const double independentSpreadSensitivity = 0.17453; //10 degrees
 

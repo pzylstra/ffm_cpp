@@ -251,7 +251,7 @@ double laterallyMergedFlameLength(const double& flameLen, const double& fireline
 	//as per spreadsheet.
   double sigma = std::min(0.23112*w*pow(flameLen/w,0.6667),firelineLen);
 	//note that following merged flame length formula differs from that in thesis (Eq 5.75) 
-	//by the addition of 1, as per email advice from Phil Zylstra
+	//by the addition of 1, as per advice from Phil Zylstra
   return flameLen * pow(sigma/sep + 1,0.4);
 }
 
