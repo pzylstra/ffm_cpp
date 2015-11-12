@@ -1,0 +1,189 @@
+# Brind 06
+
+
+#near surface ##############################
+
+begin stratum
+level = near surface
+plant separation = 3.65
+
+
+begin species
+composition = 100, 199
+name =   Monocot
+live leaf moisture = 100e-2, 100e-2
+silica free ash content =    -99
+ignition temperature =     260
+proportion dead =  0.5
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 6e-3
+leaf length =   150e-3
+leaf separation =   4e-2
+stem order =  1
+clump separation =   0
+clump diameter =  1
+he =     0
+ht =     1
+hc =    0 
+hp =     1
+w =     1.41
+end species
+
+
+end stratum
+
+# elevated #############################
+
+begin stratum
+level = elevated
+plant separation = 4.5
+
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  2
+he =     2.7
+ht =     3.3
+hc =     1.8
+hp =     4
+w =     2
+end species
+
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  2
+he =     2.7
+ht =     3.3
+hc =     1.8
+hp =     4
+w =     2
+end species
+
+
+end stratum
+
+# midstorey #############################
+
+begin stratum
+level = midstorey
+plant separation = 8.1
+
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  4.4
+he =     10.2
+ht =     13
+hc =     9.5
+hp =     15
+w =     4.4
+end species
+
+
+end stratum
+
+#canopy #############################
+
+begin stratum
+level = canopy
+plant separation = 8.5
+
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  5.4
+he =     16.1
+ht =     33.6
+hc =     12.8
+hp =     35
+w =     5.4
+end species
+
+
+end stratum
+
+# fireline length and incident wind speed are mandatory fields and are
+# metres and km/h respectively
+
+fireline length = 100                         
+incident wind speed =  -1  #km/h
+
+# overlapping can be specified as: overlapped, not overlapped, automatic
+# the overlapping specifications can be omitted in which case 
+# they will default to automatic
+
+overlapping = near surface, elevated, automatic
+overlapping = near surface, midstorey, automatic
+overlapping = elevated, midstorey, automatic
+overlapping = elevated, canopy, automatic
+overlapping = midstorey, canopy, automatic
+
+# surface variables
+
+slope =         -1                                     #deg
+surface dead fuel moisture content = 0.057
+fuel load tonnes per hectare = 17.3
+mean fuel diameter = 5e-3
+mean fineness leaves = 0.41e-3
+
+# weather variables
+air temperature =    29.2   # degrees C 
+
+
+# type of output
+# permitted values are basic, detailed, comprehensive, monte carlo
+# can also use 1, 2, 3, 4
+
+output level = 3
+monte carlo iterations = 1000
+

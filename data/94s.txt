@@ -1,0 +1,123 @@
+# Brind 94
+
+
+# elevated #############################
+
+begin stratum
+level = elevated
+plant separation = 3.9
+
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter = 1.2
+he =     1.3
+ht =     1.8
+hc =     0.6
+hp =     2
+w =     1.2
+end species
+
+
+end stratum
+
+#canopy #############################
+
+begin stratum
+level = canopy
+plant separation = 5.3
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter = 3.2
+he =     2.3
+ht =     8.6
+hc =     1.3
+hp =     10
+w =     3.2
+end species
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter = 3.2
+he =     2.3
+ht =     8.6
+hc =     1.3
+hp =     10
+w =     3.2
+end species
+
+
+end stratum
+
+# fireline length and incident wind speed are mandatory fields and are
+# metres and km/h respectively
+
+fireline length = 100                         
+incident wind speed =   26 #km/h
+
+# overlapping can be specified as: overlapped, not overlapped, automatic
+# the overlapping specifications can be omitted in which case 
+# they will default to automatic
+
+overlapping = near surface, elevated, automatic
+overlapping = near surface, midstorey, automatic
+overlapping = elevated, midstorey, automatic
+overlapping = elevated, canopy, automatic
+overlapping = midstorey, canopy, automatic
+
+# surface variables
+
+slope =       -5                                       #deg
+surface dead fuel moisture content = 0.036
+fuel load tonnes per hectare = 18
+mean fuel diameter = 5e-3
+mean fineness leaves = 0.4e-3
+
+# weather variables
+air temperature =   34.8    # degrees C 
+
+
+# type of output
+# permitted values are basic, detailed, comprehensive, monte carlo
+# can also use 1, 2, 3, 4
+
+output level = 3
+monte carlo iterations = 1000
+

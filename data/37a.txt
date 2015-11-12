@@ -1,0 +1,135 @@
+# Brind 37
+
+
+#near surface ##############################
+
+begin stratum
+level = near surface
+plant separation = 2.87
+
+
+begin species
+composition = 100, 199
+name = Poa sieberiana
+live leaf moisture = 100e-2, 100e-2
+silica free ash content = 0.013
+ignition temperature =     
+proportion dead =  0.5
+leaf form =  flat
+leaf thickness = 0.16e-3, 0.13e-3
+leaf width = 1.3e-3, 0.8e-3
+leaf length =   0.15
+leaf separation =   0.38e-2
+stem order =  1
+clump separation =   0
+clump diameter =  1
+he =     0
+ht =     0.73
+hc =     0
+hp =     1
+w =   1.93   
+end species
+
+
+end stratum
+
+
+# midstorey #############################
+
+begin stratum
+level = midstorey
+plant separation = 4.9
+
+
+begin species
+composition = 100, 199
+name =     Acacia melanoxylon
+live leaf moisture =   150e-2, 150e-2
+silica free ash content =      -99
+ignition temperature =       260
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.21e-3, 0.10e-3
+leaf width = 11e-3, 8e-3
+leaf length =   95.4e-3, 59e-3
+leaf separation =   1.6e-2
+stem order =  5.6, 1
+clump separation =   0.3
+clump diameter =  1.1
+he =     2.4
+ht =     4.6
+hc =     2.3
+hp =     6
+w =     2.9
+end species
+
+
+end stratum
+
+#canopy #############################
+
+begin stratum
+level = canopy
+plant separation = 14.1
+
+
+begin species
+composition = 100, 199
+name =   Eucalyptus viminalis
+live leaf moisture = 100e-2, 100e-2
+silica free ash content =    -99
+ignition temperature =     220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.38e-3, 0.14e-3
+leaf width = 10.6e-3, 12e-3
+leaf length =   59.8e-3, 79e-3
+leaf separation =   1.24e-2
+stem order =  5.5, 1
+clump separation =   0.8
+clump diameter =  2.5
+he =     7.1
+ht =     12.8
+hc =     6.6
+hp =     15
+w =      4.5
+end species
+
+
+end stratum
+
+# fireline length and incident wind speed are mandatory fields and are
+# metres and km/h respectively
+
+fireline length = 100                         
+incident wind speed =  0  #km/h
+
+# overlapping can be specified as: overlapped, not overlapped, automatic
+# the overlapping specifications can be omitted in which case 
+# they will default to automatic
+
+overlapping = near surface, elevated, automatic
+overlapping = near surface, midstorey, automatic
+overlapping = elevated, midstorey, automatic
+overlapping = elevated, canopy, automatic
+overlapping = midstorey, canopy, automatic
+
+# surface variables
+
+slope =        8                                      #deg
+surface dead fuel moisture content = 0.076
+fuel load tonnes per hectare = 18.1
+mean fuel diameter = 5e-3
+mean fineness leaves = 0.38e-3
+
+# weather variables
+air temperature =   20    # degrees C 
+
+
+# type of output
+# permitted values are basic, detailed, comprehensive, monte carlo
+# can also use 1, 2, 3, 4
+
+output level = 3
+monte carlo iterations = 1000
+

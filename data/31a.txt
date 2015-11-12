@@ -1,0 +1,130 @@
+# Brind 31
+
+
+#near surface ##############################
+
+begin stratum
+level = near surface
+plant separation = 0.27
+
+begin species
+composition = 100, 199
+name = Poa sieberiana
+live leaf moisture = 100e-2, 100e-2
+silica free ash content = 0.013
+ignition temperature =     
+proportion dead =  0.5
+leaf form =  flat
+leaf thickness = 0.16e-3, 0.13e-3
+leaf width = 1.3e-3, 0.8e-3
+leaf length =   0.13
+leaf separation =   0.38e-2
+stem order =  1
+clump separation =   0
+clump diameter =  0.13
+he =     0
+ht =     0.1
+hc =     0
+hp =     0.13
+w =      0.23
+end species
+
+end stratum
+
+# elevated #############################
+
+begin stratum
+level = elevated
+plant separation = 2.3
+
+begin species
+composition = 100, 199
+name =     Daviesia mimosoides
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      0.043
+ignition temperature =       280
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.38e-3, 0.3e-3
+leaf width = 10.8e-3, 5e-3
+leaf length =   58.2e-3 
+leaf separation =   1.26e-2
+stem order =  2.2
+clump separation =   0.2 
+clump diameter =  0.7
+he =     1
+ht =     1.6
+hc =     0.8
+hp =     2
+w =     1.3
+end species
+
+end stratum
+
+
+#canopy #############################
+
+begin stratum
+level = canopy
+plant separation = 10
+
+begin species
+composition = 100, 199
+name =   Eucalyptus pauciflora
+live leaf moisture = 100e-2, 100e-2
+silica free ash content =    2e-2
+ignition temperature =     220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.49e-3, 0.40e-3
+leaf width = 26.7e-3, 20e-3
+leaf length =   67.9e-3
+leaf separation =   1.06e-2
+stem order =  5
+clump separation =   1.5
+clump diameter =  2.9
+he =     13.1
+ht =     17.5
+hc =     11.7
+hp =     20
+w =      5.9
+end species
+
+end stratum
+
+# fireline length and incident wind speed are mandatory fields and are
+# metres and km/h respectively
+
+fireline length = 100                         
+incident wind speed = 5   #km/h
+
+# overlapping can be specified as: overlapped, not overlapped, automatic
+# the overlapping specifications can be omitted in which case 
+# they will default to automatic
+
+overlapping = near surface, elevated, overlapped
+overlapping = near surface, midstorey, overlapped
+overlapping = elevated, midstorey, automatic
+overlapping = elevated, canopy, automatic
+overlapping = midstorey, canopy, overlapped
+
+# surface variables
+
+slope = 0                                             #deg
+surface dead fuel moisture content = 0.076
+fuel load tonnes per hectare = 18.8
+mean fuel diameter = 5e-3
+mean fineness leaves = 0.49e-3
+
+# weather variables
+air temperature = 19.6       # degrees C 
+
+
+# type of output
+# permitted values are basic, detailed, comprehensive, monte carlo
+# can also use 1, 2, 3, 4
+
+output level = comprehensive
+monte carlo iterations = 1000
+
+

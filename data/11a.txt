@@ -1,0 +1,209 @@
+# Brind 11
+
+
+#near surface ##############################
+
+begin stratum
+level = near surface
+plant separation = 1.48
+
+
+begin species
+composition = 100, 199
+name =     Blechnum nudum
+live leaf moisture =   150e-2, 150e-2
+silica free ash content =      -99
+ignition temperature =       260
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.2e-3, 0.07e-3
+leaf width = 14.1e-3, 6.5e-3
+leaf length =   128.6e-3, 97.5e-3
+leaf separation =   0.43e-2, 0.5e-2
+stem order =  1
+clump separation =   0.08, 0.1
+clump diameter =  0.19
+he =     0.28
+ht =     0.43
+hc =     0
+hp =     0.5
+w =     0.88
+end species
+
+
+end stratum
+
+# elevated #############################
+
+begin stratum
+level = elevated
+plant separation = 6.3
+
+
+begin species
+composition = 100, 199
+name =     Bedfordia arborescens
+live leaf moisture =   150e-2, 150e-2
+silica free ash content =      -99
+ignition temperature =       260
+proportion dead =  0.2
+leaf form =  flat
+leaf thickness = 0.28e-3, 0.18e-3
+leaf width = 25.8e-3, 24e-3
+leaf length =   136.6e-3, 145e-3
+leaf separation =   0.78e-2
+stem order =  3
+clump separation =   0.1 
+clump diameter =  0.8
+he =     1.7, 2
+ht =     3.2
+hc =     1.6
+hp =     5
+w =     4.2
+end species
+
+begin species
+composition = 100, 199
+name =     Olearia stellulata
+live leaf moisture =   100e-2, 100-2
+silica free ash content =      -99
+ignition temperature =       260
+proportion dead =  0.2
+leaf form =  flat
+leaf thickness = 0.23e-3, 0.11e-3
+leaf width = 4.1e-3, 5e-3
+leaf length =   11.1e-3, 15e-3
+leaf separation =   0.19e-2
+stem order =  2.6, 1
+clump separation =   0.1 
+clump diameter =  0.8
+he =     1.7, 2
+ht =     3.2
+hc =     1.6
+hp =     5
+w =     4.2
+end species
+
+
+end stratum
+
+# midstorey #############################
+
+begin stratum
+level = midstorey
+plant separation = 12.9
+
+
+begin species
+composition = 100, 199
+name =     Acacia melanoxylon
+live leaf moisture =   150e-2, 150e-2
+silica free ash content =      -99
+ignition temperature =       260
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.21e-3, 0.10e-3
+leaf width = 11e-3, 8e-3
+leaf length =   95.4e-3, 59e-3
+leaf separation =   1.6e-2
+stem order =  5.6, 1
+clump separation =   0.4
+clump diameter =  2.9
+he =     4.3, 4
+ht =     14.6
+hc =     3.9, 4
+hp =     15
+w =     6.4
+end species
+
+end stratum
+
+#canopy #############################
+
+begin stratum
+level = canopy
+plant separation = 11.5
+
+
+begin species
+composition = 100, 199
+name =     Eucalyptus fastigata
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.34e-3, 0.07e-3
+leaf width = 23.8e-3, 21.5e-3
+leaf length =   96e-3, 71e-3
+leaf separation =   0.58e-2
+stem order =  5, 2
+clump separation =   1.6
+clump diameter =  4.7
+he =     24.9, 10
+ht =     31.1
+hc =     22.6, 10
+hp =     35
+w =     6.8
+end species
+
+begin species
+composition = 100, 199
+name =   Eucalyptus viminalis
+live leaf moisture = 100e-2, 100e-2
+silica free ash content =    -99
+ignition temperature =     220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.38e-3, 0.14e-3
+leaf width = 10.6e-3, 12e-3
+leaf length =   59.8e-3, 79e-3
+leaf separation =   1.24e-2
+stem order =  5.5, 1
+clump separation =   1.6
+clump diameter =  4.7
+he =     24.9, 10
+ht =     31.1
+hc =     22.6, 10
+hp =     35
+w =     6.8 
+end species
+
+
+end stratum
+
+# fireline length and incident wind speed are mandatory fields and are
+# metres and km/h respectively
+
+fireline length = 100                         
+incident wind speed = 19, 20   #km/h
+
+# overlapping can be specified as: overlapped, not overlapped, automatic
+# the overlapping specifications can be omitted in which case 
+# they will default to automatic
+
+overlapping = near surface, elevated, automatic
+overlapping = near surface, midstorey, automatic
+overlapping = elevated, midstorey, automatic
+overlapping = elevated, canopy, automatic
+overlapping = midstorey, canopy, automatic
+
+# surface variables
+
+slope =       2                                       #deg
+surface dead fuel moisture content = 0.036, 0.03
+fuel load tonnes per hectare = 19.9
+mean fuel diameter = 5e-3
+mean fineness leaves = 0.36e-3
+
+# weather variables
+air temperature =   34.3    # degrees C 
+
+
+# type of output
+# permitted values are basic, detailed, comprehensive, monte carlo
+# can also use 1, 2, 3, 4
+
+output level = 3
+monte carlo iterations = 1000
+

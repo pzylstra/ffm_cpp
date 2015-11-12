@@ -1,0 +1,157 @@
+# Brind 95
+
+
+#near surface ##############################
+
+begin stratum
+level = near surface
+plant separation = 0.28
+
+
+begin species
+composition = 100, 199
+name =     Acaena novae-zelandiae
+live leaf moisture =   150e-2, 150e-2
+silica free ash content =      -99
+ignition temperature =       260
+proportion dead =  0.2
+leaf form =  flat
+leaf thickness = 0.09e-3
+leaf width = 3.9e-3 
+leaf length =   7.2e-3 
+leaf separation =   0.24e-2
+stem order =  3
+clump separation =   0
+clump diameter =  0.13
+he =     0
+ht =     0.09
+hc =     0
+hp =     0.13
+w =     0.25
+end species
+
+begin species
+composition = 100, 199
+name = Poa sieberiana
+live leaf moisture = 100e-2, 100e-2
+silica free ash content = 0.013
+ignition temperature =     
+proportion dead =  0.5
+leaf form =  flat
+leaf thickness = 0.16e-3, 0.13e-3
+leaf width = 1.3e-3, 0.8e-3
+leaf length =   0.15
+leaf separation =   0.38e-2
+stem order =  1
+clump separation =   0
+clump diameter =  0.13
+he =     0
+ht =     0.09
+hc =     0
+hp =     0.13
+w =     0.25
+end species
+
+
+end stratum
+
+# elevated #############################
+
+begin stratum
+level = elevated
+plant separation = 1.7
+
+
+begin species
+composition = 100, 199
+name =     Pteridium esculentum
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      0.016
+ignition temperature =       260
+proportion dead =  0.5
+leaf form =  flat
+leaf thickness = 0.21e-3, 0.06e-3
+leaf width = 2.2e-3, 0.5e-3
+leaf length =   8.7e-3, 11e-3
+leaf separation =   0.2e-2
+stem order =  4
+clump separation =   0.1
+clump diameter =  0.3
+he =     0.8
+ht =     1
+hc =     0.5
+hp =     1
+w =     1.2
+end species
+
+
+end stratum
+
+
+#canopy #############################
+
+begin stratum
+level = canopy
+plant separation = 7.6
+
+
+begin species
+composition = 100, 199
+name =     Eucalyptus robertsonii
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.23e-3, 0.09e-3
+leaf width = 16e-3, 12.5e-3
+leaf length =   80.9e-3, 71e-3 
+leaf separation =   0.6e-2
+stem order =  5.5
+clump separation =   2.3
+clump diameter =  1.9
+he =     7.7
+ht =     18.5
+hc =     7.7
+hp =     20
+w =     4.1
+end species
+
+
+end stratum
+
+# fireline length and incident wind speed are mandatory fields and are
+# metres and km/h respectively
+
+fireline length = 100                         
+incident wind speed =  26  #km/h
+
+# overlapping can be specified as: overlapped, not overlapped, automatic
+# the overlapping specifications can be omitted in which case 
+# they will default to automatic
+
+overlapping = near surface, elevated, automatic
+overlapping = near surface, midstorey, automatic
+overlapping = elevated, midstorey, automatic
+overlapping = elevated, canopy, automatic
+overlapping = midstorey, canopy, automatic
+
+# surface variables
+
+slope =       -18                                       #deg
+surface dead fuel moisture content = 0.036
+fuel load tonnes per hectare = 17.3
+mean fuel diameter = 5e-3
+mean fineness leaves = 0.23e-3
+
+# weather variables
+air temperature =    34.8   # degrees C 
+
+
+# type of output
+# permitted values are basic, detailed, comprehensive, monte carlo
+# can also use 1, 2, 3, 4
+
+output level = 3
+monte carlo iterations = 1000
+

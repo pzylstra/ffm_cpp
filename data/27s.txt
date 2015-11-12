@@ -1,0 +1,210 @@
+# Brind 27
+
+
+#near surface ##############################
+
+begin stratum
+level = near surface
+plant separation = 0.62
+
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  0.1
+he =     0.05
+ht =     0.1
+hc =     0.05
+hp =     0.1
+w =    0.5 
+end species
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  0.1
+he =     0.05
+ht =     0.1
+hc =     0.05
+hp =     0.1
+w =    0.5 
+end species
+
+
+end stratum
+
+# elevated #############################
+
+begin stratum
+level = elevated
+plant separation = 0.7
+
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  0.5
+he =     0.4
+ht =     0.8
+hc =     0.3
+hp =     1
+w =    0.5
+end species
+
+
+end stratum
+
+# midstorey #############################
+
+begin stratum
+level = midstorey
+plant separation = 4.8
+
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation = 0
+clump diameter =  2.4
+he =     1.7
+ht =     4.2
+hc =     1.2
+hp =     6
+w =      2.4
+end species
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation = 0
+clump diameter =  2.4
+he =     1.7
+ht =     4.2
+hc =     1.2
+hp =     6
+w =      2.4
+end species
+
+
+end stratum
+
+#canopy #############################
+
+begin stratum
+level = canopy
+plant separation = 9.4
+
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation = 0
+clump diameter =  4.2
+he =     14.8
+ht =     31.1
+hc =     14
+hp =     35
+w =     4.2
+end species
+
+
+end stratum
+
+# fireline length and incident wind speed are mandatory fields and are
+# metres and km/h respectively
+
+fireline length = 100                         
+incident wind speed = -5   #km/h
+
+# overlapping can be specified as: overlapped, not overlapped, automatic
+# the overlapping specifications can be omitted in which case 
+# they will default to automatic
+
+overlapping = near surface, elevated, automatic
+overlapping = near surface, midstorey, automatic
+overlapping = elevated, midstorey, automatic
+overlapping = elevated, canopy, automatic
+overlapping = midstorey, canopy, automatic
+
+# surface variables
+
+slope =    10                                          #deg
+surface dead fuel moisture content = 0.076
+fuel load tonnes per hectare = 19.9
+mean fuel diameter = 5e-3
+mean fineness leaves = 0.34e-3
+
+# weather variables
+air temperature =    20.4   # degrees C 
+
+
+# type of output
+# permitted values are basic, detailed, comprehensive, monte carlo
+# can also use 1, 2, 3, 4
+
+output level = 3
+monte carlo iterations = 1000
+

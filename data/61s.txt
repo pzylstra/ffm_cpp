@@ -1,0 +1,154 @@
+# Brind 61
+
+
+#near surface ##############################
+
+begin stratum
+level = near surface
+plant separation = 0.27
+
+begin species
+composition = 100, 199
+name =   Monocot
+live leaf moisture = 100e-2, 100e-2
+silica free ash content =    -99
+ignition temperature =     260
+proportion dead =  0.5
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 6e-3
+leaf length =   150e-3
+leaf separation =   4e-2
+stem order =  1
+clump separation =   0
+clump diameter =  0.1
+he =     0
+ht =     0.07
+hc =     0
+hp =     0.1
+w =      0.19
+end species
+
+
+end stratum
+
+# elevated #############################
+
+begin stratum
+level = elevated
+plant separation = 2.4
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  0.9
+he =     0.8
+ht =     1
+hc =     0.6
+hp =     1
+w =     0.9
+end species
+
+
+end stratum
+
+
+#canopy #############################
+
+begin stratum
+level = canopy
+plant separation = 9.4
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  6
+he =     9.8
+ht =     13.1
+hc =     8.8
+hp =     15
+w =      6
+end species
+
+begin species
+composition = 100, 199
+name =     Dicot
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.3e-3
+leaf width = 12e-3
+leaf length =   54e-3
+leaf separation =   1e-2
+stem order =  4
+clump separation =   0
+clump diameter =  6
+he =     9.8
+ht =     13.1
+hc =     8.8
+hp =     15
+w =      6
+end species
+
+
+end stratum
+
+# fireline length and incident wind speed are mandatory fields and are
+# metres and km/h respectively
+
+fireline length = 100                         
+incident wind speed =   10 #km/h
+
+# overlapping can be specified as: overlapped, not overlapped, automatic
+# the overlapping specifications can be omitted in which case 
+# they will default to automatic
+
+overlapping = near surface, elevated, automatic
+overlapping = near surface, midstorey, automatic
+overlapping = elevated, midstorey, automatic
+overlapping = elevated, canopy, automatic
+overlapping = midstorey, canopy, automatic
+
+# surface variables
+
+slope =       17                                       #deg
+surface dead fuel moisture content = 0.106
+fuel load tonnes per hectare = 21.5
+mean fuel diameter = 5e-3
+mean fineness leaves = 0.44e-3
+
+# weather variables
+air temperature =   18    # degrees C 
+
+
+# type of output
+# permitted values are basic, detailed, comprehensive, monte carlo
+# can also use 1, 2, 3, 4
+
+output level = 3
+monte carlo iterations = 1000
+

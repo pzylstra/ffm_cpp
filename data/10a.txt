@@ -1,0 +1,166 @@
+# Brind 10
+
+
+#near surface #############################
+
+begin stratum
+level = near surface
+plant separation = 8.9
+
+
+begin species
+composition = 100, 199
+name =     Suspended leaves/twigs
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  1
+leaf form =  flat
+leaf thickness = 0.23e-3, 0.09e-3
+leaf width = 16e-3, 12.5e-3
+leaf length =   80.9e-3, 71e-3 
+leaf separation =   0.6e-2
+stem order =  1
+clump separation =   0
+clump diameter =  0.3
+he =     0
+ht =     0.3
+hc =     0
+hp =     0.3
+w =     0.3
+end species
+
+
+end stratum
+
+# elevated #############################
+
+begin stratum
+level = elevated
+plant separation = 3.3
+
+
+begin species
+composition = 100, 199
+name =     Acacia rubida
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       260
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.36e-3, 0.16e-3
+leaf width = 14.2e-3, 4e-3
+leaf length =   87.3e-3, 20e-3
+leaf separation =   1.5e-2
+stem order =  2.4, 2
+clump separation =   0.4
+clump diameter =  0.5
+he =     0.7
+ht =     1.8
+hc =     0.9
+hp =     2
+w =     1.6
+end species
+
+
+end stratum
+
+# midstorey #############################
+
+begin stratum
+level = midstorey
+plant separation = 14.3
+
+
+begin species
+composition = 100, 199
+name =     Eucalyptus dives
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.4e-3, 0.03e-3
+leaf width = 15.8e-3, 6e-3
+leaf length =   103.6e-3, 12e-3
+leaf separation =   1.66e-2
+stem order =  5, 3
+clump separation =   0.6
+clump diameter =  2.1
+he =     8.8
+ht =     12.6
+hc =     7.1
+hp =     15
+w =     6.4
+end species
+
+
+end stratum
+
+#canopy #############################
+
+begin stratum
+level = canopy
+plant separation = 8.9
+
+
+begin species
+composition = 100, 199
+name =     Eucalyptus robertsonii
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.23e-3, 0.09e-3
+leaf width = 16e-3, 12.5e-3
+leaf length =   80.9e-3, 71e-3 
+leaf separation =   0.6e-2
+stem order =  5.5
+clump separation =   1.7
+clump diameter =  3.8
+he =     14.4
+ht =     21.7
+hc =     12.4
+hp =     25
+w =     5.3
+end species
+
+
+end stratum
+
+# fireline length and incident wind speed are mandatory fields and are
+# metres and km/h respectively
+
+fireline length = 100                         
+incident wind speed =  6  #km/h
+
+# overlapping can be specified as: overlapped, not overlapped, automatic
+# the overlapping specifications can be omitted in which case 
+# they will default to automatic
+
+overlapping = near surface, elevated, automatic
+overlapping = near surface, midstorey, automatic
+overlapping = elevated, midstorey, automatic
+overlapping = elevated, canopy, automatic
+overlapping = midstorey, canopy, automatic
+
+# surface variables
+
+slope =        -5                                      #deg
+surface dead fuel moisture content = 0.057
+fuel load tonnes per hectare = 15.4
+mean fuel diameter = 5e-3
+mean fineness leaves = 0.23e-3
+
+# weather variables
+air temperature =   28.8    # degrees C 
+
+
+# type of output
+# permitted values are basic, detailed, comprehensive, monte carlo
+# can also use 1, 2, 3, 4
+
+output level = 3
+monte carlo iterations = 1000
+

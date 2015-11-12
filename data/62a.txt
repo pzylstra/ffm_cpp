@@ -1,0 +1,147 @@
+# Brind 62
+
+
+# elevated #############################
+
+begin stratum
+level = elevated
+plant separation = 5.7
+
+
+begin species
+composition = 100, 199
+name =     Acacia verniciflua
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       260
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.26e-3, 0.06e-3
+leaf width = 4.1e-3, 3e-3 
+leaf length =   24.5e-3, 23e-3 
+leaf separation =   1.62e-2
+stem order =  2.8, 2
+clump separation =   0.3
+clump diameter =  0.9
+he =     0.4
+ht =     0.7
+hc =     0.5
+hp =     2
+w =     4.2
+end species
+
+begin species
+composition = 100, 199
+name =     Cassinia longifolia
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.17e-3, 0.04e-3
+leaf width = 4e-3, 3.5e-3
+leaf length =   50.2e-3, 72e-3
+leaf separation =   0.42e-2
+stem order =  5, 2
+clump separation =   0.3
+clump diameter =  0.9
+he =     0.4
+ht =     0.7
+hc =     0.5
+hp =     2
+w =     4.2
+end species
+
+
+end stratum
+
+
+#canopy #############################
+
+begin stratum
+level = canopy
+plant separation = 8.2
+
+
+begin species
+composition = 100, 199
+name =     Eucalyptus dalrympleana
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.41e-3, 0.07e-3
+leaf width = 20.5e-3, 10e-3
+leaf length =   134e-3, 98e-3
+leaf separation =   1.83e-2
+stem order =  5, 2
+clump separation =   0.5
+clump diameter =  1.9
+he =     7.5
+ht =     11.5
+hc =     7.5
+hp =     12
+w =     4.5
+end species
+
+begin species
+composition = 100, 199
+name =     Eucalyptus macrorhyncha
+live leaf moisture =   100e-2, 100e-2
+silica free ash content =      -99
+ignition temperature =       220
+proportion dead =  0
+leaf form =  flat
+leaf thickness = 0.4e-3
+leaf width = 16.5e-3, 11.8e-3
+leaf length =   80.2e-3, 53.9e-3
+leaf separation =   1.17e-2
+stem order =  6, 2
+clump separation =   0.5
+clump diameter =  1.9
+he =     7.5
+ht =     11.5
+hc =     7.5
+hp =     12
+w =     4.5
+end species
+
+
+end stratum
+
+# fireline length and incident wind speed are mandatory fields and are
+# metres and km/h respectively
+
+fireline length = 100                         
+incident wind speed = -14   #km/h
+
+# overlapping can be specified as: overlapped, not overlapped, automatic
+# the overlapping specifications can be omitted in which case 
+# they will default to automatic
+
+overlapping = near surface, elevated, automatic
+overlapping = near surface, midstorey, automatic
+overlapping = elevated, midstorey, automatic
+overlapping = elevated, canopy, automatic
+overlapping = midstorey, canopy, automatic
+
+# surface variables
+
+slope =       -22                                       #deg
+surface dead fuel moisture content = 0.091
+fuel load tonnes per hectare = 15.4
+mean fuel diameter = 5e-3
+mean fineness leaves = 0.4e-3
+
+# weather variables
+air temperature =     20.4  # degrees C 
+
+
+# type of output
+# permitted values are basic, detailed, comprehensive, monte carlo
+# can also use 1, 2, 3, 4
+
+output level = comprehensive
+monte carlo iterations = 1000
+
