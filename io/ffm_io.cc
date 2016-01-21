@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <regex>
 #include <set>
 #include <string>
 #include <tuple>
@@ -22,6 +23,14 @@
 #include "ffm_util.h"
 #include "ffm_io.h"
 #include "results.h"
+
+// Used by function stringToDouble to check the format
+// of string values representing doubles. Note that 
+// where a decimal point is present, it must be preceded by
+// one or more digits. So "0.1" is valid but ".1" is not.
+// Exponential format is supported (e.g. "100e-2").
+//
+const std::regex DOUBLE_FORMAT("((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?((e|E)((\\+|-)?)[[:digit:]]+)?");
 
 
 /*!\brief Processes a line from the input text file
@@ -61,13 +70,19 @@ std::vector<std::string> processLine(const std::string& line) {
 
 /*!\brief Conversion from string to double
   \param str Assumes str is a comma separated list of strings, might be only one in the list
-  \return The double representing by the FIRST element of the list
+  \return The double represented by the FIRST element of the list
 */
 double stringToDouble(const std::string& str) {
-  //assumes str is a comma separated list of strings, might be only one in the list
-  //returns the double representing by the FIRST element of the list
   std::vector<std::string> strVec = ffm_util::split(str, ',');
-  return atof(strVec.at(0).c_str());
+  std::string first = strVec.at(0);
+
+  if (std::regex_match(first, DOUBLE_FORMAT))
+    return atof(strVec.at(0).c_str());
+  else {
+    std::cout << "Invalid numeric format (" << first << ")" << std::endl;
+    exit(1);
+  }
+    
 }
 
 /*!\brief Initial parse of input file
