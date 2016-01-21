@@ -713,7 +713,7 @@ std::string printMonteCarloHeader(const Location& loc) {
   std::string tmpStr = sep + "Overall" + sep  + "Surface";
   for (const auto& st : loc.strata())
     tmpStr += sep + st.name();
-  str += tmpStr + tmpStr + tmpStr + tmpStr;
+  str += tmpStr + tmpStr + tmpStr + tmpStr + tmpStr;
   str += sep + "Flame depth";
   str +=  sep + "Crown fire type";
   str +=  sep + "Crown run length";
