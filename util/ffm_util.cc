@@ -8,6 +8,9 @@
 #include "ffm_numerics.h"
 
 namespace ffm_util {
+  
+  std::random_device RDEV{};
+  std::default_random_engine GENERATOR{ RDEV() };
 
   /*!\brief Trims leading and trailing white space
     \param str
@@ -132,10 +135,8 @@ namespace ffm_util {
   */
   double randomNormal(const double& mean, const double& stdDev) {
     if (stdDev <= 0) return mean;
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator(seed);
     std::normal_distribution<double> distribution(mean,stdDev);
-    return distribution(generator);
+    return distribution(GENERATOR);
   }
 
   /*!\brief Random number from specified uniform distribution
@@ -145,10 +146,8 @@ namespace ffm_util {
   */
   double randomUniform(const double& mean, const double& range) {
     if (range <= 0) return mean;
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator(seed);
     std::uniform_real_distribution<double> distribution(mean - 0.5*range, mean + 0.5*range);
-    return distribution(generator);
+    return distribution(GENERATOR);
   }
 
   /*
@@ -156,9 +155,8 @@ namespace ffm_util {
    */
   double randomUniform() {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator(seed);
     std::uniform_real_distribution<double> distribution(0.0, 1.0);
-    return distribution(generator);
+    return distribution(GENERATOR);
   }
 
   /*!\brief Random number from specified normal distribution
