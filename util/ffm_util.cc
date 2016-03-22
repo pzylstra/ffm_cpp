@@ -7,10 +7,33 @@
 #include "ffm_util.h"
 #include "ffm_numerics.h"
 
+// processor clock count function to use as seeder
+// (from http://www.mcs.anl.gov/~kazutomo/rdtsc.html)
+//
+#if defined(__i386__)
+
+static __inline__ unsigned long long rdtsc(void)
+{
+    unsigned long long int x;
+    __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
+    return x;
+}
+
+#elif defined(__x86_64__)
+
+static __inline__ unsigned long long rdtsc(void)
+{
+    unsigned hi, lo;
+    __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
+    return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
+}
+
+#endif
+
+
 namespace ffm_util {
   
-  std::random_device RDEV{};
-  std::default_random_engine GENERATOR{ RDEV() };
+  std::mt19937 GENERATOR( rdtsc() );
 
   /*!\brief Trims leading and trailing white space
     \param str
