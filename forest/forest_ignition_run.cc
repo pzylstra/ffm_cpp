@@ -260,10 +260,13 @@ double ForestIgnitionRun::activeCrownFireROS(const Results& res) const {
     horizontalDistanceSum += ((*i).maxX() + sp.width()*0.5)*sp.composition();
     }
   }
-  //compute time when fire spread in the canopy. Presumably we weight this by species again
+  // Compute time when fire spread in the canopy. 
+  // This is being done for plant and stratum paths - MB
   double speciesWeightedTimeOfSpread = 0;
   for (const IgnitionPath& ip : paths_) {
-    speciesWeightedTimeOfSpread += ip.timeOfSpread() * ip.species().composition();
+    if (ip.level() == Stratum::CANOPY && ip.hasSegments()) {
+      speciesWeightedTimeOfSpread += ip.timeOfSpread() * ip.species().composition();
+    }
   }
 
   return horizontalDistanceSum / (ignitionTimeSum + speciesWeightedTimeOfSpread);
